@@ -5,29 +5,29 @@
 @tailwind utilities;
 
 @layer base {
-    body {
-        @apply bg-[#0F172A] text-white font-sans antialiased;
-    }
+  body {
+    @apply bg-[#0F172A] text-white font-sans antialiased;
+  }
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        @apply font-cinzel;
-    }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-cinzel;
+  }
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-    width: 8px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    @apply bg-midnight-blue;
+  @apply bg-midnight-blue;
 }
 
 ::-webkit-scrollbar-thumb {
-    @apply bg-white/10 rounded-full hover:bg-white/20;
+  @apply bg-white/10 rounded-full hover:bg-white/20;
 }
