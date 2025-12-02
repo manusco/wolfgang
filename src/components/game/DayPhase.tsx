@@ -55,7 +55,7 @@ export function DayPhase() {
                                     className="p-4 rounded-lg bg-white/5 border border-white/10 opacity-50"
                                 >
                                     <div className="text-3xl mb-2">{player.avatar}</div>
-                                    <div className="text-sm font-medium">{player.name}</div>
+                                    <div className="text-sm font-medium" translate="no">{player.name}</div>
                                     <div className="text-xs text-gray-500 mt-1">{player.role}</div>
                                 </div>
                             ))}
@@ -95,12 +95,12 @@ export function DayPhase() {
                             onClick={() => !hasVoted && setSelectedTarget(player.id)}
                             disabled={hasVoted}
                             className={`p-4 rounded-lg border-2 transition-all ${selectedTarget === player.id
-                                    ? 'border-yellow-500 bg-yellow-500/20'
-                                    : 'border-white/10 bg-white/5 hover:bg-white/10'
+                                ? 'border-yellow-500 bg-yellow-500/20'
+                                : 'border-white/10 bg-white/5 hover:bg-white/10'
                                 } ${hasVoted ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             <div className="text-3xl mb-2">{player.avatar}</div>
-                            <div className="text-sm font-medium">{player.name}</div>
+                            <div className="text-sm font-medium" translate="no">{player.name}</div>
                             {hasVoted && game.dayVotes[playerId] === player.id && (
                                 <div className="text-xs text-yellow-500 mt-1">✓ Gewählt</div>
                             )}
@@ -117,7 +117,7 @@ export function DayPhase() {
                 {hasVoted && (
                     <div className="mt-4 p-3 bg-green-900/20 border border-green-500/30 rounded-lg text-center">
                         <p className="text-sm text-green-400">
-                            ✓ Du hast für {game.players[selectedTarget!]?.name} gestimmt
+                            ✓ Du hast für <span translate="no">{game.players[selectedTarget!]?.name}</span> gestimmt
                         </p>
                     </div>
                 )}
@@ -137,8 +137,8 @@ export function DayPhase() {
                                 <div
                                     key={player.id}
                                     className={`px-3 py-1 rounded-full text-xs ${game.dayVotes[player.id]
-                                            ? 'bg-green-900/30 text-green-400'
-                                            : 'bg-gray-800/30 text-gray-500'
+                                        ? 'bg-green-900/30 text-green-400'
+                                        : 'bg-gray-800/30 text-gray-500'
                                         }`}
                                 >
                                     {player.avatar} {game.dayVotes[player.id] ? '✓' : '○'}

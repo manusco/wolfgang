@@ -179,10 +179,15 @@ export async function startGame(roomCode: string): Promise<void> {
 
     const roleAssignments = assignRoles(playerIds, roleConfig);
 
+    // Determine initial phase
+    // Survival Sprint always starts at Day to give villagers a chance
+    // Small games (< 4 players) also start at Day to prevent instant loss (Night Kill -> 1v1 -> Wolf Wins)
+    const initialPhase = (game.mode === 'SURVIVAL_SPRINT' || playerIds.length < 4) ? 'DAY' : 'NIGHT';
+
     // Update all players with their roles
     const updates: any = {
-        status: 'NIGHT',
-        phaseEndTime: Date.now() + getPhaseTimer(game.mode, 'NIGHT'),
+        status: initialPhase,
+        phaseEndTime: Date.now() + getPhaseTimer(game.mode, initialPhase),
     };
 
     playerIds.forEach((playerId) => {
@@ -193,8 +198,7 @@ export async function startGame(roomCode: string): Promise<void> {
     if (game.mode === 'THE_ACCUSED') {
         const villagers = playerIds.filter(id => roleAssignments[id] === 'VILLAGER');
         if (villagers.length > 0) {
-            const accusedId = villagers[Math.floor(Math.random() * villagers.length)]
-                ;
+            const accusedId = villagers[Math.floor(Math.random() * villagers.length)];
             updates['accusedPlayerId'] = accusedId;
         }
     }

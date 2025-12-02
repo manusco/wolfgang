@@ -381,7 +381,7 @@ export function Lobby({ isHost }: LobbyProps) {
                         {players.map((player) => (
                             <div key={player.id} className="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/5">
                                 <span className="text-2xl">{player.avatar}</span>
-                                <span className="font-medium">{player.name}</span>
+                                <span className="font-medium" translate="no">{player.name}</span>
                                 {player.id === gameState.hostId && (
                                     <span className="ml-auto text-xs bg-blood-red/20 text-blood-red px-2 py-1 rounded">
                                         HOST
@@ -420,7 +420,7 @@ export function Lobby({ isHost }: LobbyProps) {
                             {players.map((player) => (
                                 <div key={player.id} className="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/5">
                                     <span className="text-2xl">{player.avatar}</span>
-                                    <span className="font-medium">{player.name}</span>
+                                    <span className="font-medium" translate="no">{player.name}</span>
                                     {player.id === gameState.hostId && (
                                         <span className="ml-auto text-xs bg-blood-red/20 text-blood-red px-2 py-1 rounded">
                                             HOST

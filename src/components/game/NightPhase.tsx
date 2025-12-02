@@ -63,7 +63,7 @@ export function NightPhase() {
                                 {otherWolves.map(wolf => (
                                     <div key={wolf.id} className="flex items-center gap-1 text-blood-red">
                                         <span className="text-xl">{wolf.avatar}</span>
-                                        <span className="text-sm">{wolf.name}</span>
+                                        <span className="text-sm" translate="no">{wolf.name}</span>
                                     </div>
                                 ))}
                             </div>
@@ -95,14 +95,14 @@ export function NightPhase() {
                                 onClick={() => !hasActed && setSelectedTarget(player.id)}
                                 disabled={hasActed}
                                 className={`p-4 rounded-lg border-2 transition-all ${selectedTarget === player.id
-                                        ? (isSurvivalSprint
-                                            ? 'border-teal-500 bg-teal-500/20'
-                                            : 'border-blood-red bg-blood-red/20')
-                                        : 'border-white/10 bg-white/5 hover:bg-white/10'
+                                    ? (isSurvivalSprint
+                                        ? 'border-teal-500 bg-teal-500/20'
+                                        : 'border-blood-red bg-blood-red/20')
+                                    : 'border-white/10 bg-white/5 hover:bg-white/10'
                                     } ${hasActed ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 <div className="text-3xl mb-2">{player.avatar}</div>
-                                <div className="text-sm font-medium">{player.name}</div>
+                                <div className="text-sm font-medium" translate="no">{player.name}</div>
                                 {!isSurvivalSprint && game.nightActions.wolfVotes[player.id] && (
                                     <div className="text-xs text-blood-red mt-1">
                                         {Object.values(game.nightActions.wolfVotes).filter(
@@ -164,7 +164,7 @@ export function NightPhase() {
                                     } ${hasActed ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 <div className="text-3xl mb-2">{player.avatar}</div>
-                                <div className="text-sm font-medium">{player.name}</div>
+                                <div className="text-sm font-medium" translate="no">{player.name}</div>
                                 {hasActed && selectedTarget === player.id && (
                                     <div className="text-xs text-purple-400 mt-2">
                                         Rolle: {player.role === 'WOLF' ? '🐺 WOLF' : '👤 DORF'}

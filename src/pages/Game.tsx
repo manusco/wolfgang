@@ -7,6 +7,7 @@ import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { NightPhase } from '../components/game/NightPhase';
 import { DayPhase } from '../components/game/DayPhase';
 import { HostControls } from '../components/game/HostControls';
+import { GameTimer } from '../components/game/GameTimer';
 import { Moon, Sun, Trophy, LogOut } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useLanguageStore } from '../store/languageStore';
@@ -137,7 +138,7 @@ export function Game() {
                                 >
                                     <div className="flex items-center gap-2">
                                         <span className="text-2xl">{player.avatar}</span>
-                                        <span>{player.name}</span>
+                                        <span translate="no">{player.name}</span>
                                     </div>
                                     <span className={`text-sm ${player.role === 'WOLF' ? 'text-blood-red' : 'text-blue-400'}`}>
                                         {t.roles[player.role as keyof typeof t.roles]}
@@ -155,7 +156,10 @@ export function Game() {
         <div className="flex flex-col gap-6 max-w-md mx-auto w-full p-4">
             {/* Header */}
             <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold">{t.game.room}: {game.id}</h2>
+                <div className="flex flex-col">
+                    <h2 className="text-xl font-bold">{t.game.room}: {game.id}</h2>
+                    <GameTimer phaseEndTime={game.phaseEndTime} />
+                </div>
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
                         {game.status === 'NIGHT' ? (

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
@@ -23,13 +23,34 @@ export function HostControls() {
     const [isProcessing, setIsProcessing] = useState(false);
     const t = translations[language].game;
 
+    // Auto-transition when timer expires
+    useEffect(() => {
+        if (!game || isProcessing) return;
+
+        const checkTimer = () => {
+            const now = Date.now();
+            // Add a small buffer (1s) to ensure we don't trigger too early due to clock skew
+            if (game.phaseEndTime > 0 && now > game.phaseEndTime + 1000) {
+                console.log('Timer expired, auto-transitioning...');
+                if (game.status === 'NIGHT') {
+                    handleNightToDay(true);
+                } else if (game.status === 'DAY') {
+                    handleDayToNight(true);
+                }
+            }
+        };
+
+        const interval = setInterval(checkTimer, 1000);
+        return () => clearInterval(interval);
+    }, [game, isProcessing]);
+
     if (!game || !playerId || game.hostId !== playerId) {
         return null; // Only show to host
     }
 
-    const handleNightToDay = async () => {
+    const handleNightToDay = async (auto = false) => {
         if (!game) return;
-        if (!window.confirm(t.toDay + '?')) return;
+        if (!auto && !window.confirm(t.toDay + '?')) return;
         setIsProcessing(true);
 
         try {
@@ -44,7 +65,7 @@ export function HostControls() {
             // Check win condition
             const updatedPlayers = { ...game.players };
             deadPlayerIds.forEach(id => {
-                updatedPlayers[id].isAlive = false;
+                updatedPlayers[id] = { ...updatedPlayers[id], isAlive: false };
             });
 
             const winner = checkWinCondition(updatedPlayers, game.mode);
@@ -71,9 +92,9 @@ export function HostControls() {
         }
     };
 
-    const handleDayToNight = async () => {
+    const handleDayToNight = async (auto = false) => {
         if (!game) return;
-        if (!window.confirm(t.toNight + '?')) return;
+        if (!auto && !window.confirm(t.toNight + '?')) return;
         setIsProcessing(true);
 
         try {
@@ -86,7 +107,7 @@ export function HostControls() {
 
                 // Check win condition
                 const updatedPlayers = { ...game.players };
-                updatedPlayers[executedPlayerId].isAlive = false;
+                updatedPlayers[executedPlayerId] = { ...updatedPlayers[executedPlayerId], isAlive: false };
 
                 const winner = checkWinCondition(updatedPlayers, game.mode);
                 if (winner) {
@@ -118,7 +139,7 @@ export function HostControls() {
 
             // After shot, check win condition again
             const updatedPlayers = { ...game.players };
-            updatedPlayers[targetId].isAlive = false;
+            updatedPlayers[targetId] = { ...updatedPlayers[targetId], isAlive: false };
             const winner = checkWinCondition(updatedPlayers, game.mode);
             if (winner) {
                 await endGame(game.id, winner);
@@ -167,7 +188,7 @@ export function HostControls() {
                                     variant="secondary"
                                     className="text-xs"
                                 >
-                                    {player.name}
+                                    <span translate="no">{player.name}</span>
                                 </Button>
                             ))}
                     </div>
@@ -190,7 +211,7 @@ export function HostControls() {
                 </div>
 
                 <Button
-                    onClick={game.status === 'NIGHT' ? handleNightToDay : handleDayToNight}
+                    onClick={() => game.status === 'NIGHT' ? handleNightToDay(false) : handleDayToNight(false)}
                     disabled={isProcessing}
                     size="sm"
                     className="flex items-center gap-2"
