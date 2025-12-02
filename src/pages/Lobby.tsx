@@ -160,25 +160,17 @@ export function Lobby({ isHost }: LobbyProps) {
                         </div>
                     </div>
 
-                    {/* Avatar selection with labels */}
-                    <div className="text-center text-sm text-gray-400 mb-2">
-                        {t.lobby.selectAvatar}
-                    </div>
                     <div className="grid grid-cols-4 gap-2 mb-4">
                         {AVATARS.map((avatar) => (
                             <button
                                 key={avatar}
                                 onClick={() => setSelectedAvatar(avatar)}
-                                title={AVATAR_NAMES[avatar][language]}
-                                className={`p-3 rounded-lg transition-all flex flex-col items-center gap-1 ${selectedAvatar === avatar
-                                    ? 'bg-blood-red/20 border-2 border-blood-red'
+                                className={`p-2 rounded-lg text-xl transition-all ${selectedAvatar === avatar
+                                    ? 'bg-blood-red/20 border border-blood-red'
                                     : 'bg-white/5 hover:bg-white/10 border border-transparent'
                                     }`}
                             >
-                                <span className="text-2xl">{avatar}</span>
-                                <span className="text-[10px] text-gray-500 font-medium">
-                                    {AVATAR_NAMES[avatar][language]}
-                                </span>
+                                {avatar}
                             </button>
                         ))}
                     </div>
