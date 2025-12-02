@@ -31,6 +31,7 @@ export const translations = {
             minPlayersRequired: "Mindestens 4 Spieler benötigt",
             copyCode: "Code kopieren",
             playerCount: "{{count}} / 20",
+            selectAvatar: "Wähle dein Avatar",
         },
         game: {
             hostControls: "HOST STEUERUNG",
@@ -114,6 +115,7 @@ export const translations = {
             minPlayersRequired: "Minimum 4 players required",
             copyCode: "Copy Code",
             playerCount: "{{count}} / 20",
+            selectAvatar: "Choose your avatar",
         },
         game: {
             hostControls: "HOST CONTROLS",

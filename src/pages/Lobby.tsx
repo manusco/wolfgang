@@ -18,6 +18,18 @@ interface LobbyProps {
 
 const AVATARS = ['🐺', '🔮', '🧙‍♀️', '🏹', '👨‍🌾', '🧛‍♂️', '🧟', '👻'];
 
+// Avatar descriptions in both languages
+const AVATAR_NAMES: Record<string, { de: string; en: string }> = {
+    '🐺': { de: 'Wolf', en: 'Wolf' },
+    '🔮': { de: 'Seherin', en: 'Seer' },
+    '🧙‍♀️': { de: 'Hexe', en: 'Witch' },
+    '🏹': { de: 'Jäger', en: 'Hunter' },
+    '👨‍🌾': { de: 'Bauer', en: 'Farmer' },
+    '🧛‍♂️': { de: 'Vampir', en: 'Vampire' },
+    '🧟': { de: 'Zombie', en: 'Zombie' },
+    '👻': { de: 'Geist', en: 'Ghost' },
+};
+
 export function Lobby({ isHost }: LobbyProps) {
     const navigate = useNavigate();
     const { playerId, setPlayerId, setGame } = useGameStore();
@@ -148,17 +160,25 @@ export function Lobby({ isHost }: LobbyProps) {
                         </div>
                     </div>
 
+                    {/* Avatar selection with labels */}
+                    <div className="text-center text-sm text-gray-400 mb-2">
+                        {t.lobby.selectAvatar}
+                    </div>
                     <div className="grid grid-cols-4 gap-2 mb-4">
                         {AVATARS.map((avatar) => (
                             <button
                                 key={avatar}
                                 onClick={() => setSelectedAvatar(avatar)}
-                                className={`p-2 rounded-lg text-xl transition-all ${selectedAvatar === avatar
-                                    ? 'bg-blood-red/20 border border-blood-red'
+                                title={AVATAR_NAMES[avatar][language]}
+                                className={`p-3 rounded-lg transition-all flex flex-col items-center gap-1 ${selectedAvatar === avatar
+                                    ? 'bg-blood-red/20 border-2 border-blood-red'
                                     : 'bg-white/5 hover:bg-white/10 border border-transparent'
                                     }`}
                             >
-                                {avatar}
+                                <span className="text-2xl">{avatar}</span>
+                                <span className="text-[10px] text-gray-500 font-medium">
+                                    {AVATAR_NAMES[avatar][language]}
+                                </span>
                             </button>
                         ))}
                     </div>
