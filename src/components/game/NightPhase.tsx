@@ -32,24 +32,31 @@ export function NightPhase() {
         }
     };
 
-    // Werewolf view
-    if (currentPlayer.role === 'WOLF') {
+    // Werewolf view - or Survival Sprint (everyone thinks they might be the wolf)
+    if (currentPlayer.role === 'WOLF' || game.mode === 'SURVIVAL_SPRINT') {
         const otherWolves = Object.values(game.players).filter(
             p => p.role === 'WOLF' && p.id !== playerId
         );
 
+        // In Survival Sprint, hide pack info (no one knows who wolves are)
+        const showPackInfo = game.mode !== 'SURVIVAL_SPRINT' && otherWolves.length > 0;
+        const isSurvivalSprint = game.mode === 'SURVIVAL_SPRINT';
+        const isActualWolf = currentPlayer.role === 'WOLF';
+
         return (
             <div className="space-y-6">
-                <Card className="bg-blood-red/10 border-blood-red/30">
+                <Card className={isSurvivalSprint ? "bg-teal-900/20 border-teal-500/30" : "bg-blood-red/10 border-blood-red/30"}>
                     <div className="flex items-center gap-3 mb-4">
-                        <Moon className="w-6 h-6 text-blood-red" />
+                        <Moon className={`w-6 h-6 ${isSurvivalSprint ? 'text-teal-400' : 'text-blood-red'}`} />
                         <div>
-                            <h2 className="text-xl font-bold text-blood-red">Nachtphase</h2>
+                            <h2 className={`text-xl font-bold ${isSurvivalSprint ? 'text-teal-400' : 'text-blood-red'}`}>
+                                {isSurvivalSprint ? '🏃‍♂️ Survival Sprint' : 'Nachtphase'}
+                            </h2>
                             <p className="text-sm text-gray-400">Zeit: {timeRemaining}s</p>
                         </div>
                     </div>
 
-                    {otherWolves.length > 0 && (
+                    {showPackInfo && (
                         <div className="mb-4 p-3 bg-black/20 rounded-lg">
                             <p className="text-sm text-gray-400 mb-2">Dein Rudel:</p>
                             <div className="flex gap-2">
@@ -63,8 +70,20 @@ export function NightPhase() {
                         </div>
                     )}
 
+                    {isSurvivalSprint && (
+                        <div className="mb-4 p-3 bg-teal-900/20 rounded-lg border border-teal-500/20">
+                            <p className="text-sm text-teal-300">
+                                {isActualWolf
+                                    ? '🐺 Du bist der Wolf! Deine Stimme ist die EINZIGE die zählt. Überlebe bis Final 2!'
+                                    : '❓ Du KÖNNTEST der Wolf sein... oder auch nicht. Wähle die Person die du am meisten verdächtigst!'}
+                            </p>
+                        </div>
+                    )}
+
                     <p className="text-gray-300 mb-4">
-                        {hasActed ? 'Deine Stimme wurde abgegeben.' : 'Wähle ein Opfer:'}
+                        {hasActed
+                            ? (isSurvivalSprint ? 'Verarbeite Stimmen...' : 'Deine Stimme wurde abgegeben.')
+                            : 'Wähle ein Opfer:'}
                     </p>
                 </Card>
 
@@ -76,13 +95,15 @@ export function NightPhase() {
                                 onClick={() => !hasActed && setSelectedTarget(player.id)}
                                 disabled={hasActed}
                                 className={`p-4 rounded-lg border-2 transition-all ${selectedTarget === player.id
-                                    ? 'border-blood-red bg-blood-red/20'
-                                    : 'border-white/10 bg-white/5 hover:bg-white/10'
+                                        ? (isSurvivalSprint
+                                            ? 'border-teal-500 bg-teal-500/20'
+                                            : 'border-blood-red bg-blood-red/20')
+                                        : 'border-white/10 bg-white/5 hover:bg-white/10'
                                     } ${hasActed ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 <div className="text-3xl mb-2">{player.avatar}</div>
                                 <div className="text-sm font-medium">{player.name}</div>
-                                {game.nightActions.wolfVotes[player.id] && (
+                                {!isSurvivalSprint && game.nightActions.wolfVotes[player.id] && (
                                     <div className="text-xs text-blood-red mt-1">
                                         {Object.values(game.nightActions.wolfVotes).filter(
                                             id => id === player.id

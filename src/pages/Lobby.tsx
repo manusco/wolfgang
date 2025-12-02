@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
-import { ArrowLeft, Copy, User, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Copy, User, AlertCircle, Zap, Eye, Users } from 'lucide-react';
 import { createGame, joinGame, subscribeToGame, startGame } from '../lib/gameService';
 import { useGameStore } from '../store/gameStore';
 import { useLanguageStore } from '../store/languageStore';
 import { translations } from '../i18n/translations';
 import { interpolate } from '../i18n/utils';
-import { GameState } from '../types';
+import { GameState, GameMode } from '../types';
 
 
 interface LobbyProps {
@@ -19,17 +19,6 @@ interface LobbyProps {
 const AVATARS = ['🐺', '🔮', '🧙‍♀️', '🏹', '👨‍🌾', '🧛‍♂️', '🧟', '👻'];
 
 // Avatar descriptions in both languages
-const AVATAR_NAMES: Record<string, { de: string; en: string }> = {
-    '🐺': { de: 'Wolf', en: 'Wolf' },
-    '🔮': { de: 'Seherin', en: 'Seer' },
-    '🧙‍♀️': { de: 'Hexe', en: 'Witch' },
-    '🏹': { de: 'Jäger', en: 'Hunter' },
-    '👨‍🌾': { de: 'Bauer', en: 'Farmer' },
-    '🧛‍♂️': { de: 'Vampir', en: 'Vampire' },
-    '🧟': { de: 'Zombie', en: 'Zombie' },
-    '👻': { de: 'Geist', en: 'Ghost' },
-};
-
 export function Lobby({ isHost }: LobbyProps) {
     const navigate = useNavigate();
     const { playerId, setPlayerId, setGame } = useGameStore();
@@ -38,6 +27,7 @@ export function Lobby({ isHost }: LobbyProps) {
     const [name, setName] = useState('');
     const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0]);
     const [roomCode, setRoomCode] = useState('');
+    const [selectedMode, setSelectedMode] = useState<GameMode>('CLASSIC');
     const [gameState, setGameState] = useState<GameState | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -74,7 +64,7 @@ export function Lobby({ isHost }: LobbyProps) {
         setError('');
 
         try {
-            const code = await createGame(playerId, name, selectedAvatar);
+            const code = await createGame(playerId, name, selectedAvatar, selectedMode);
             setRoomCode(code);
 
             // Subscribe to the newly created game
@@ -149,6 +139,31 @@ export function Lobby({ isHost }: LobbyProps) {
 
             <Card className="space-y-6">
                 <div className="space-y-4">
+                    {/* Mode Selection (Host Only) */}
+                    {isHost && !gameState && (
+                        <div className="space-y-3 pb-4 border-b border-white/10">
+                            <label className="text-sm font-medium text-gray-300">
+                                {language === 'de' ? 'Spielmodus' : 'Game Mode'}
+                            </label>
+                            <div className="grid grid-cols-1 gap-2">
+                                <button onClick={() => setSelectedMode('CLASSIC')} className={`p-3 rounded-lg border-2 transition-all text-left ${selectedMode === 'CLASSIC' ? 'border-purple-500 bg-purple-500/20' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}>
+                                    <div className="flex items-center gap-2"><Users className="w-5 h-5 text-purple-400" /><span className="font-medium">{t.modes?.classic?.name || 'Classic'}</span></div>
+                                </button>
+                                <button onClick={() => setSelectedMode('BLITZ_WOLF')} className={`p-3 rounded-lg border-2 transition-all text-left ${selectedMode === 'BLITZ_WOLF' ? 'border-yellow-500 bg-yellow-500/20' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}>
+                                    <div className="flex items-center gap-2"><Zap className="w-5 h-5 text-yellow-400" /><span className="font-medium">{t.modes?.blitzWolf?.name || 'Blitz Wolf'}</span></div>
+                                </button>
+                                <button onClick={() => setSelectedMode('ONE_SHOT_SEER')} className={`p-3 rounded-lg border-2 transition-all text-left ${selectedMode === 'ONE_SHOT_SEER' ? 'border-blue-500 bg-blue-500/20' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}>
+                                    <div className="flex items-center gap-2"><Eye className="w-5 h-5 text-blue-400" /><span className="font-medium">{t.modes?.oneShotSeer?.name || 'One Shot Seer'}</span></div>
+                                </button>
+                                <button onClick={() => setSelectedMode('THE_ACCUSED')} className={`p-3 rounded-lg border-2 transition-all text-left ${selectedMode === 'THE_ACCUSED' ? 'border-orange-500 bg-orange-500/20' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}>
+                                    <div className="flex items-center gap-2"><Users className="w-5 h-5 text-orange-400" /><span className="font-medium">{t.modes?.theAccused?.name || 'The Accused'}</span></div>
+                                </button>
+                                <button onClick={() => setSelectedMode('SURVIVAL_SPRINT')} className={`p-3 rounded-lg border-2 transition-all text-left ${selectedMode === 'SURVIVAL_SPRINT' ? 'border-teal-500 bg-teal-500/20' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}>
+                                    <div className="flex items-center gap-2"><User className="w-5 h-5 text-teal-400" /><span className="font-medium">{t.modes?.survivalSprint?.name || 'Survival Sprint'}</span></div>
+                                </button>
+                            </div>
+                        </div>
+                    )}
                     <div className="flex justify-center mb-6">
                         <div className="relative">
                             <div className="w-24 h-24 rounded-full bg-white/10 flex items-center justify-center text-4xl border-2 border-blood-red/50">

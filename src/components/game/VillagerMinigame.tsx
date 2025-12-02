@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
+import { useLanguageStore } from '../../store/languageStore';
+import { translations } from '../../i18n/translations';
 
 interface Firefly {
     id: number;
@@ -14,6 +16,8 @@ interface VillagerMinigameProps {
 }
 
 export function VillagerMinigame({ timeRemaining }: VillagerMinigameProps) {
+    const { language } = useLanguageStore();
+    const t = translations[language];
     const [fireflies, setFireflies] = useState<Firefly[]>([]);
     const [score, setScore] = useState(0);
     const [nextId, setNextId] = useState(0);
@@ -62,10 +66,10 @@ export function VillagerMinigame({ timeRemaining }: VillagerMinigameProps) {
             <div className="text-center mb-4">
                 <h3 className="text-lg font-bold text-blue-300 mb-2 flex items-center justify-center gap-2">
                     <Sparkles className="w-5 h-5" />
-                    Fange die Glühwürmchen
+                    {t.minigame.catchFireflies}
                 </h3>
                 <p className="text-sm text-gray-400">
-                    Gefangen: <span className="text-blue-400 font-bold">{score}</span>
+                    {t.minigame.caught}: <span className="text-blue-400 font-bold">{score}</span>
                 </p>
             </div>
 
@@ -113,13 +117,13 @@ export function VillagerMinigame({ timeRemaining }: VillagerMinigameProps) {
                 {/* Instructions */}
                 {fireflies.length === 0 && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <p className="text-gray-500 text-sm">Warte auf Glühwürmchen...</p>
+                        <p className="text-gray-500 text-sm">{t.minigame.waitingForFireflies}</p>
                     </div>
                 )}
             </div>
 
             <p className="text-xs text-gray-500 text-center mt-3">
-                Tippe die Glühwürmchen an, während du auf den Morgen wartest
+                {t.minigame.tapToPlay}
             </p>
         </div>
     );

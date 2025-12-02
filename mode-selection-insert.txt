@@ -1,0 +1,76 @@
+// MODE SELECTION INSERT - Add between lines 151-153 in Lobby.tsx
+                    {/* Mode Selection (Host Only) */}
+                    {isHost && !gameState && (
+                        <div className="space-y-3 pb-4 border-b border-white/10">
+                            <label className="text-sm font-medium text-gray-300">
+                                {language === 'de' ? 'Spielmodus' : 'Game Mode'}
+                            </label>
+                            <div className="grid grid-cols-1 gap-2">
+                                <button
+                                    onClick={() => setSelectedMode('CLASSIC')}
+                                    className={`p-3 rounded-lg border-2 transition-all text-left ${
+                                        selectedMode === 'CLASSIC'
+                                            ? 'border-purple-500 bg-purple-500/20'
+                                            : 'border-white/10 bg-white/5 hover:bg-white/10'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <Users className="w-5 h-5 text-purple-400" />
+                                        <span className="font-medium">{t.modes?.classic?.name || 'Classic'}</span>
+                                    </div>
+                                </button>
+                                <button
+                                    onClick={() => setSelectedMode('BLITZ_WOLF')}
+                                    className={`p-3 rounded-lg border-2 transition-all text-left ${
+                                        selectedMode === 'BLITZ_WOLF'
+                                            ? 'border-yellow-500 bg-yellow-500/20'
+                                            : 'border-white/10 bg-white/5 hover:bg-white/10'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <Zap className="w-5 h-5 text-yellow-400" />
+                                        <span className="font-medium">{t.modes?.blitzWolf?.name || 'Blitz Wolf'}</span>
+                                    </div>
+                                </button>
+                                <button
+                                    onClick={() => setSelectedMode('ONE_SHOT_SEER')}
+                                    className={`p-3 rounded-lg border-2 transition-all text-left ${
+                                        selectedMode === 'ONE_SHOT_SEER'
+                                            ? 'border-blue-500 bg-blue-500/20'
+                                            : 'border-white/10 bg-white/5 hover:bg-white/10'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <Eye className="w-5 h-5 text-blue-400" />
+                                        <span className="font-medium">{t.modes?.oneShotSeer?.name || 'One Shot Seer'}</span>
+                                    </div>
+                                </button>
+                                <button
+                                    onClick={() => setSelectedMode('THE_ACCUSED')}
+                                    className={`p-3 rounded-lg border-2 transition-all text-left ${
+                                        selectedMode === 'THE_ACCUSED'
+                                            ? 'border-orange-500 bg-orange-500/20'
+                                            : 'border-white/10 bg-white/5 hover:bg-white/10'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <Users className="w-5 h-5 text-orange-400" />
+                                        <span className="font-medium">{t.modes?.theAccused?.name || 'The Accused'}</span>
+                                    </div>
+                                </button>
+                                <button
+                                    onClick={() => setSelectedMode('SURVIVAL_SPRINT')}
+                                    className={`p-3 rounded-lg border-2 transition-all text-left ${
+                                        selectedMode === 'SURVIVAL_SPRINT'
+                                            ? 'border-teal-500 bg-teal-500/20'
+                                            : 'border-white/10 bg-white/5 hover:bg-white/10'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <User className="w-5 h-5 text-teal-400" />
+                                        <span className="font-medium">{t.modes?.survivalSprint?.name || 'Survival Sprint'}</span>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    )}

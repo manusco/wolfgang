@@ -47,7 +47,7 @@ export function HostControls() {
                 updatedPlayers[id].isAlive = false;
             });
 
-            const winner = checkWinCondition(updatedPlayers);
+            const winner = checkWinCondition(updatedPlayers, game.mode);
             if (winner) {
                 await endGame(game.id, winner);
                 return;
@@ -88,7 +88,7 @@ export function HostControls() {
                 const updatedPlayers = { ...game.players };
                 updatedPlayers[executedPlayerId].isAlive = false;
 
-                const winner = checkWinCondition(updatedPlayers);
+                const winner = checkWinCondition(updatedPlayers, game.mode);
                 if (winner) {
                     await endGame(game.id, winner);
                     return;
@@ -119,7 +119,7 @@ export function HostControls() {
             // After shot, check win condition again
             const updatedPlayers = { ...game.players };
             updatedPlayers[targetId].isAlive = false;
-            const winner = checkWinCondition(updatedPlayers);
+            const winner = checkWinCondition(updatedPlayers, game.mode);
             if (winner) {
                 await endGame(game.id, winner);
                 return;

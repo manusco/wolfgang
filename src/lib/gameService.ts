@@ -1,6 +1,6 @@
 import { doc, setDoc, getDoc, updateDoc, onSnapshot, Unsubscribe } from 'firebase/firestore';
 import { db } from './firebase';
-import { GameState, Role } from '../types';
+import { GameState, Role, GameMode, GameStatus } from '../types';
 
 /**
  * Generates a random 4-letter room code
@@ -62,7 +62,7 @@ function assignRoles(playerIds: string[], roleConfig: { wolves: number; seer: nu
 /**
  * Create a new game
  */
-export async function createGame(hostId: string, hostName: string, hostAvatar: string): Promise<string> {
+export async function createGame(hostId: string, hostName: string, hostAvatar: string, mode: GameMode = 'CLASSIC'): Promise<string> {
     console.log('[createGame] Starting game creation...', { hostId, hostName });
     const roomCode = generateRoomCode();
     console.log('[createGame] Generated room code:', roomCode);
@@ -71,6 +71,7 @@ export async function createGame(hostId: string, hostName: string, hostAvatar: s
         id: roomCode,
         hostId,
         status: 'LOBBY',
+        mode,
         phaseEndTime: 0,
         players: {
             [hostId]: {
@@ -154,26 +155,89 @@ export async function startGame(roomCode: string): Promise<void> {
     const game = gameSnap.data() as GameState;
     const playerIds = Object.keys(game.players);
 
-    // Default role configuration (adjust based on player count)
-    const roleConfig = {
+    if (playerIds.length < 2) {
+        throw new Error('Not enough players. Need at least 2 players.');
+    }
+
+    // Default role configuration
+    let roleConfig = {
         wolves: Math.max(1, Math.floor(playerIds.length / 4)),
         seer: 1,
         witch: 1,
     };
+
+    // Mode-specific role configuration
+    if (game.mode === 'BLITZ_WOLF') {
+        roleConfig = { wolves: 1, seer: 0, witch: 0 };
+    } else if (game.mode === 'ONE_SHOT_SEER') {
+        roleConfig = { wolves: 1, seer: 1, witch: 0 };
+    } else if (game.mode === 'THE_ACCUSED') {
+        roleConfig = { wolves: 1, seer: 0, witch: 0 };
+    } else if (game.mode === 'SURVIVAL_SPRINT') {
+        roleConfig = { wolves: 1, seer: 0, witch: 0 };
+    }
 
     const roleAssignments = assignRoles(playerIds, roleConfig);
 
     // Update all players with their roles
     const updates: any = {
         status: 'NIGHT',
-        phaseEndTime: Date.now() + 30000, // 30 seconds for night phase
+        phaseEndTime: Date.now() + getPhaseTimer(game.mode, 'NIGHT'),
     };
 
     playerIds.forEach((playerId) => {
         updates[`players.${playerId}.role`] = roleAssignments[playerId];
     });
 
+    // For THE_ACCUSED mode: Mark one random villager as accused
+    if (game.mode === 'THE_ACCUSED') {
+        const villagers = playerIds.filter(id => roleAssignments[id] === 'VILLAGER');
+        if (villagers.length > 0) {
+            const accusedId = villagers[Math.floor(Math.random() * villagers.length)]
+                ;
+            updates['accusedPlayerId'] = accusedId;
+        }
+    }
+
     await updateDoc(gameRef, updates);
+}
+
+/**
+ * Get phase timer based on game mode
+ */
+function getPhaseTimer(mode: GameMode, phase: GameStatus): number {
+    if (mode === 'BLITZ_WOLF') {
+        // Blitz Wolf: Ultra-fast timers
+        if (phase === 'NIGHT') return 15000; // 15s
+        if (phase === 'DAY') return 30000; // 30s discussion
+        return 15000; // 15s voting
+    }
+
+    if (mode === 'ONE_SHOT_SEER') {
+        // One Shot Seer: Longer discussion, no night kills
+        if (phase === 'NIGHT') return 20000; // 20s (seer checks only)
+        if (phase === 'DAY') return 60000; // 60s discussion (more time for deduction)
+        return 30000; // 30s voting
+    }
+
+    if (mode === 'THE_ACCUSED') {
+        // The Accused: Standard timers with emphasis on discussion
+        if (phase === 'NIGHT') return 25000; // 25s
+        if (phase === 'DAY') return 75000; // 75s discussion (time for accused to defend)
+        return 30000; // 30s voting
+    }
+
+    if (mode === 'SURVIVAL_SPRINT') {
+        // Survival Sprint: Balance between paranoia and decision-making
+        if (phase === 'NIGHT') return 30000; // 30s (everyone votes to eliminate)
+        if (phase === 'DAY') return 45000; // 45s (quick defense time)
+        return 20000; // 20s voting
+    }
+
+    // Classic mode: Standard timers
+    if (phase === 'NIGHT') return 30000; // 30s
+    if (phase === 'DAY') return 90000; // 90s discussion
+    return 30000; // 30s voting
 }
 
 /**
@@ -218,3 +282,62 @@ export async function submitDayVote(roomCode: string, voterId: string, targetId:
         [`dayVotes.${voterId}`]: targetId,
     });
 }
+
+/**
+ * Check if a game exists and get its current state
+ */
+export async function checkGameExists(roomCode: string): Promise<GameState | null> {
+    try {
+        const gameRef = doc(db, 'games', roomCode);
+        const gameSnap = await getDoc(gameRef);
+
+        if (!gameSnap.exists()) {
+            return null;
+        }
+
+        return gameSnap.data() as GameState;
+    } catch (error) {
+        console.error('[checkGameExists] Error:', error);
+        return null;
+    }
+}
+
+/**
+ * Check if a player can rejoin a game
+ */
+export async function canRejoinGame(roomCode: string, playerId: string): Promise<boolean> {
+    const game = await checkGameExists(roomCode);
+
+    if (!game) return false;
+
+    // Check if player is in the game
+    return playerId in game.players;
+}
+
+/**
+ * Reconnect to an existing game
+ * Validates that the game exists and the player is part of it
+ */
+export async function reconnectToGame(
+    roomCode: string,
+    playerId: string
+): Promise<{ success: boolean; game?: GameState; error?: string }> {
+    try {
+        const game = await checkGameExists(roomCode);
+
+        if (!game) {
+            return { success: false, error: 'Game not found' };
+        }
+
+        if (!(playerId in game.players)) {
+            return { success: false, error: 'Player not in game' };
+        }
+
+        // Successfully reconnected
+        return { success: true, game };
+    } catch (error) {
+        console.error('[reconnectToGame] Error:', error);
+        return { success: false, error: 'Failed to reconnect' };
+    }
+}
+

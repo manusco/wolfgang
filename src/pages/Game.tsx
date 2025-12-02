@@ -1,21 +1,55 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useGameStore } from '../store/gameStore';
-import { subscribeToGame } from '../lib/gameService';
+import { subscribeToGame, reconnectToGame } from '../lib/gameService';
 import { Card } from '../components/ui/Card';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { NightPhase } from '../components/game/NightPhase';
 import { DayPhase } from '../components/game/DayPhase';
 import { HostControls } from '../components/game/HostControls';
-import { Moon, Sun, Trophy } from 'lucide-react';
+import { Moon, Sun, Trophy, LogOut } from 'lucide-react';
+import { Button } from '../components/ui/Button';
 import { useLanguageStore } from '../store/languageStore';
 import { translations } from '../i18n/translations';
 
 export function Game() {
     const { gameId } = useParams();
     const navigate = useNavigate();
-    const { game, setGame, playerId } = useGameStore();
+    const { game, setGame, playerId, roomCode: storedRoomCode, reset } = useGameStore();
     const { language } = useLanguageStore();
     const t = translations[language];
+    const [showLeaveDialog, setShowLeaveDialog] = useState(false);
+    const [isReconnecting, setIsReconnecting] = useState(false);
+
+    // Try to reconnect if there's a stored session but no game loaded
+    useEffect(() => {
+        const attemptReconnect = async () => {
+            const targetGameId = gameId || storedRoomCode;
+
+            if (targetGameId && playerId && !game && !isReconnecting) {
+                setIsReconnecting(true);
+                const result = await reconnectToGame(targetGameId, playerId);
+
+                if (result.success && result.game) {
+                    setGame(result.game);
+
+                    // If game is over or in lobby, might want to redirect
+                    if (result.game.status === 'GAMEOVER') {
+                        // Stay on page to show results
+                    } else if (result.game.status === 'LOBBY') {
+                        navigate(`/join`);
+                    }
+                } else {
+                    // Reconnection failed, clear session and go home
+                    reset();
+                    navigate('/');
+                }
+                setIsReconnecting(false);
+            }
+        };
+
+        attemptReconnect();
+    }, [gameId, storedRoomCode, playerId, game, navigate, setGame, reset, isReconnecting]);
 
     // Subscribe to game updates
     useEffect(() => {
@@ -30,6 +64,28 @@ export function Game() {
 
         return () => unsubscribe();
     }, [gameId, setGame, navigate]);
+
+    // Warn before unload during active game
+    useEffect(() => {
+        if (game && game.status !== 'GAMEOVER') {
+            const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+                e.preventDefault();
+                e.returnValue = '';
+            };
+
+            window.addEventListener('beforeunload', handleBeforeUnload);
+            return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+        }
+    }, [game]);
+
+    const handleLeaveGame = () => {
+        setShowLeaveDialog(true);
+    };
+
+    const confirmLeave = () => {
+        reset();
+        navigate('/');
+    };
 
     if (!game) {
         return (
@@ -100,15 +156,25 @@ export function Game() {
             {/* Header */}
             <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold">{t.game.room}: {game.id}</h2>
-                <div className="flex items-center gap-2">
-                    {game.status === 'NIGHT' ? (
-                        <Moon className="w-5 h-5 text-blue-400" />
-                    ) : (
-                        <Sun className="w-5 h-5 text-yellow-500" />
-                    )}
-                    <span className="px-3 py-1 rounded-full bg-white/10 text-sm font-mono">
-                        {t.game[game.status.toLowerCase() as 'night' | 'day'] || game.status}
-                    </span>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                        {game.status === 'NIGHT' ? (
+                            <Moon className="w-5 h-5 text-blue-400" />
+                        ) : (
+                            <Sun className="w-5 h-5 text-yellow-500" />
+                        )}
+                        <span className="px-3 py-1 rounded-full bg-white/10 text-sm font-mono">
+                            {t.game[game.status.toLowerCase() as 'night' | 'day'] || game.status}
+                        </span>
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleLeaveGame}
+                        className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                    >
+                        <LogOut className="w-4 h-4" />
+                    </Button>
                 </div>
             </div>
 
@@ -138,6 +204,17 @@ export function Game() {
             {/* Phase content */}
             {game.status === 'NIGHT' && <NightPhase />}
             {game.status === 'DAY' && <DayPhase />}
+
+            <ConfirmDialog
+                isOpen={showLeaveDialog}
+                title={t.game.confirmLeaveGame}
+                message={t.game.confirmLeaveGameMessage}
+                confirmLabel={t.game.leaveGame}
+                cancelLabel={t.lobby.back}
+                onConfirm={confirmLeave}
+                onCancel={() => setShowLeaveDialog(false)}
+                variant="danger"
+            />
         </div>
     );
 }

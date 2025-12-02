@@ -1,14 +1,80 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { Moon, Users } from 'lucide-react';
 import { LanguageToggle } from '../components/ui/LanguageToggle';
 import { useLanguageStore } from '../store/languageStore';
+import { useGameStore } from '../store/gameStore';
 import { translations } from '../i18n/translations';
+import { hasActiveSession } from '../lib/sessionStorage';
+import { reconnectToGame } from '../lib/gameService';
+import { HowToPlay } from '../components/ui/HowToPlay';
 
 export function Landing() {
     const navigate = useNavigate();
     const { language } = useLanguageStore();
+    const { roomCode, playerId, isHost, reset } = useGameStore();
     const t = translations[language].landing;
+    const [hasSession, setHasSession] = useState(false);
+    const [showNewGameDialog, setShowNewGameDialog] = useState(false);
+    const [pendingAction, setPendingAction] = useState<'create' | 'join' | null>(null);
+
+    useEffect(() => {
+        setHasSession(hasActiveSession());
+    }, []);
+
+    const handleRejoin = async () => {
+        if (roomCode && playerId) {
+            const result = await reconnectToGame(roomCode, playerId);
+
+            if (result.success && result.game) {
+                // Navigate based on game status
+                if (result.game.status === 'LOBBY') {
+                    navigate(isHost ? '/create' : '/join');
+                } else if (result.game.status === 'GAMEOVER') {
+                    navigate(`/game/${roomCode}`);
+                } else {
+                    navigate(`/game/${roomCode}`);
+                }
+            } else {
+                // Reconnection failed, clear session
+                reset();
+                setHasSession(false);
+            }
+        }
+    };
+
+    const handleCreateGame = () => {
+        if (hasSession) {
+            setPendingAction('create');
+            setShowNewGameDialog(true);
+        } else {
+            navigate('/create');
+        }
+    };
+
+    const handleJoinGame = () => {
+        if (hasSession) {
+            setPendingAction('join');
+            setShowNewGameDialog(true);
+        } else {
+            navigate('/join');
+        }
+    };
+
+    const confirmNewGame = () => {
+        reset();
+        setHasSession(false);
+        setShowNewGameDialog(false);
+
+        if (pendingAction === 'create') {
+            navigate('/create');
+        } else if (pendingAction === 'join') {
+            navigate('/join');
+        }
+        setPendingAction(null);
+    };
 
     return (
         <div className="flex-1 flex flex-col items-center justify-center gap-12 animate-in fade-in duration-700 relative">
@@ -26,12 +92,29 @@ export function Landing() {
                     <br />
                     {t.description}
                 </p>
+                <p className="text-gray-500 text-sm max-w-lg mx-auto mt-2">
+                    {t.tagline}
+                </p>
             </div>
 
+            {/* How to Play - Expandable */}
+            <HowToPlay />
+
             <div className="flex flex-col gap-4 w-full max-w-xs">
+                {hasSession && (
+                    <Button
+                        size="lg"
+                        onClick={handleRejoin}
+                        className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700"
+                    >
+                        <Users className="w-5 h-5" />
+                        {t.rejoinGame}
+                    </Button>
+                )}
+
                 <Button
                     size="lg"
-                    onClick={() => navigate('/create')}
+                    onClick={handleCreateGame}
                     className="w-full flex items-center justify-center gap-2"
                 >
                     <Moon className="w-5 h-5" />
@@ -41,7 +124,7 @@ export function Landing() {
                 <Button
                     variant="secondary"
                     size="lg"
-                    onClick={() => navigate('/join')}
+                    onClick={handleJoinGame}
                     className="w-full flex items-center justify-center gap-2"
                 >
                     <Users className="w-5 h-5" />
@@ -54,6 +137,20 @@ export function Landing() {
                     {t.version}
                 </div>
             </div>
+
+            <ConfirmDialog
+                isOpen={showNewGameDialog}
+                title={t.confirmNewGame}
+                message={t.confirmNewGameMessage}
+                confirmLabel={pendingAction === 'create' ? t.create : t.join}
+                cancelLabel="Cancel"
+                onConfirm={confirmNewGame}
+                onCancel={() => {
+                    setShowNewGameDialog(false);
+                    setPendingAction(null);
+                }}
+                variant="danger"
+            />
         </div>
     );
 }

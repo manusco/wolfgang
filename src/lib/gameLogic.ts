@@ -14,8 +14,19 @@ export function resolveNightActions(game: GameState): { deadPlayerIds: string[];
     let victim: string | null = null;
 
     if (Object.keys(wolfVotes).length > 0) {
+        // In SURVIVAL_SPRINT mode, only count votes from actual wolves
+        let relevantVotes = wolfVotes;
+        if (game.mode === 'SURVIVAL_SPRINT') {
+            relevantVotes = {};
+            Object.entries(wolfVotes).forEach(([voterId, targetId]) => {
+                if (game.players[voterId]?.role === 'WOLF') {
+                    relevantVotes[voterId] = targetId;
+                }
+            });
+        }
+
         const voteCounts: Record<string, number> = {};
-        Object.values(wolfVotes).forEach(targetId => {
+        Object.values(relevantVotes).forEach(targetId => {
             voteCounts[targetId] = (voteCounts[targetId] || 0) + 1;
         });
 
@@ -107,8 +118,9 @@ export function resolveDayVotes(game: GameState): { executedPlayerId: string | n
 
 /**
  * Check if game is over and determine winner
+ * For SURVIVAL_SPRINT mode: Wolf wins if alive at Final 2, villagers win if wolf is eliminated
  */
-export function checkWinCondition(players: Record<string, Player>): 'VILLAGERS' | 'WEREWOLVES' | null {
+export function checkWinCondition(players: Record<string, Player>, mode?: string): 'VILLAGERS' | 'WEREWOLVES' | null {
     const alivePlayers = Object.values(players).filter(p => p.isAlive);
     const aliveWolves = alivePlayers.filter(p => p.role === 'WOLF');
     const aliveVillagers = alivePlayers.filter(p => p.role !== 'WOLF');
@@ -120,7 +132,15 @@ export function checkWinCondition(players: Record<string, Player>): 'VILLAGERS' 
         return 'VILLAGERS';
     }
 
-    // Werewolves win if they equal or outnumber villagers
+    // SURVIVAL_SPRINT mode: Wolf wins if alive at Final 2
+    if (mode === 'SURVIVAL_SPRINT') {
+        if (alivePlayers.length <= 2 && aliveWolves.length > 0) {
+            return 'WEREWOLVES';
+        }
+        return null;
+    }
+
+    // Standard mode: Werewolves win if they equal or outnumber villagers
     if (aliveWolves.length >= aliveVillagers.length) {
         return 'WEREWOLVES';
     }

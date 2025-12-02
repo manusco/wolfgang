@@ -20,6 +20,7 @@ export const subscribeToGame = (gameId: string, callback: (game: GameState) => v
         id: gameId,
         hostId: 'host-123',
         status: 'LOBBY',
+        mode: 'CLASSIC',
         phaseEndTime: 0,
         players: {},
         nightActions: {
