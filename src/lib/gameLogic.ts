@@ -13,7 +13,13 @@ export function resolveNightActions(game: GameState): { deadPlayerIds: string[];
     const wolfVotes = game.nightActions.wolfVotes;
     let victim: string | null = null;
 
-    if (Object.keys(wolfVotes).length > 0) {
+    // BLITZ_WOLF: If no votes, random kill
+    if (game.mode === 'BLITZ_WOLF' && Object.keys(wolfVotes).length === 0) {
+        const villagers = Object.values(game.players).filter(p => p.role !== 'WOLF' && p.isAlive);
+        if (villagers.length > 0) {
+            victim = villagers[Math.floor(Math.random() * villagers.length)].id;
+        }
+    } else if (Object.keys(wolfVotes).length > 0) {
         // In SURVIVAL_SPRINT mode, only count votes from actual wolves
         let relevantVotes = wolfVotes;
         if (game.mode === 'SURVIVAL_SPRINT') {
@@ -43,10 +49,15 @@ export function resolveNightActions(game: GameState): { deadPlayerIds: string[];
             }
         });
 
-        // Tie-breaking: If there's a tie, NO ONE dies from wolves
+        // Tie-breaking: If there's a tie, NO ONE dies from wolves (Standard)
         if (potentialVictims.length === 1) {
             victim = potentialVictims[0];
         }
+    }
+
+    // ONE_SHOT_SEER: No night kills from wolves
+    if (game.mode === 'ONE_SHOT_SEER') {
+        victim = null;
     }
 
     // 2. Apply Witch Logic
@@ -120,7 +131,11 @@ export function resolveDayVotes(game: GameState): { executedPlayerId: string | n
  * Check if game is over and determine winner
  * For SURVIVAL_SPRINT mode: Wolf wins if alive at Final 2, villagers win if wolf is eliminated
  */
-export function checkWinCondition(players: Record<string, Player>, mode?: string): 'VILLAGERS' | 'WEREWOLVES' | null {
+export function checkWinCondition(
+    players: Record<string, Player>,
+    mode?: string,
+    dayCount: number = 0
+): 'VILLAGERS' | 'WEREWOLVES' | null {
     const alivePlayers = Object.values(players).filter(p => p.isAlive);
     const aliveWolves = alivePlayers.filter(p => p.role === 'WOLF');
     const aliveVillagers = alivePlayers.filter(p => p.role !== 'WOLF');
@@ -140,6 +155,18 @@ export function checkWinCondition(players: Record<string, Player>, mode?: string
         return null;
     }
 
+    // ONE_SHOT_SEER mode: Wolf wins if they survive 3 days (Day Count >= 3)
+    if (mode === 'ONE_SHOT_SEER') {
+        // If wolf is still alive after Day 3 (meaning we are entering Night 4 or Day 4), Wolf wins.
+        // Let's say win at start of Day 4? Or end of Day 3?
+        // Let's check dayCount. If dayCount >= 3, Wolf wins.
+        if (dayCount >= 3) {
+            return 'WEREWOLVES';
+        }
+        // Villagers win if they kill the wolf (handled by aliveWolves.length === 0 check above)
+        return null;
+    }
+
     // Standard mode: Werewolves win if they equal or outnumber villagers
     if (aliveWolves.length >= aliveVillagers.length) {
         return 'WEREWOLVES';
@@ -156,11 +183,12 @@ export async function transitionToDay(gameId: string): Promise<void> {
 
     await updateDoc(gameRef, {
         status: 'DAY',
-        phaseEndTime: Date.now() + 120000, // 2 minutes for discussion
+        phaseEndTime: Date.now() + 120000, // 2 minutes for discussion (will be overridden by gameService logic usually, but this is fallback)
         'nightActions.wolfVotes': {},
         'nightActions.seerCheck': null,
         'nightActions.witchSaved': false,
         'nightActions.witchPoisoned': null,
+        dayCount: (await import('firebase/firestore')).increment(1),
     });
 }
 

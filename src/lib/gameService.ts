@@ -93,6 +93,7 @@ export async function createGame(hostId: string, hostName: string, hostAvatar: s
         dayVotes: {},
         hunterDeath: null,
         winner: null,
+        dayCount: 0,
     };
 
     console.log('[createGame] Writing to Firestore...', initialGame);
@@ -211,37 +212,37 @@ export async function startGame(roomCode: string): Promise<void> {
  */
 function getPhaseTimer(mode: GameMode, phase: GameStatus): number {
     if (mode === 'BLITZ_WOLF') {
-        // Blitz Wolf: Ultra-fast timers
+        // Blitz Wolf: Ultra-fast timers (Strict 15s/30s)
         if (phase === 'NIGHT') return 15000; // 15s
-        if (phase === 'DAY') return 30000; // 30s discussion
-        return 15000; // 15s voting
+        if (phase === 'DAY') return 30000; // 30s
+        return 15000; // 15s voting (if separate, but usually part of Day)
     }
 
     if (mode === 'ONE_SHOT_SEER') {
-        // One Shot Seer: Longer discussion, no night kills
-        if (phase === 'NIGHT') return 20000; // 20s (seer checks only)
-        if (phase === 'DAY') return 60000; // 60s discussion (more time for deduction)
-        return 30000; // 30s voting
+        // One Shot Seer: Fast night (no kills), longer day for deduction
+        if (phase === 'NIGHT') return 15000; // 15s (just for Seer)
+        if (phase === 'DAY') return 60000; // 60s discussion
+        return 30000;
     }
 
     if (mode === 'THE_ACCUSED') {
-        // The Accused: Standard timers with emphasis on discussion
+        // The Accused: Standard timers
         if (phase === 'NIGHT') return 25000; // 25s
-        if (phase === 'DAY') return 75000; // 75s discussion (time for accused to defend)
-        return 30000; // 30s voting
+        if (phase === 'DAY') return 75000; // 75s
+        return 30000;
     }
 
     if (mode === 'SURVIVAL_SPRINT') {
-        // Survival Sprint: Balance between paranoia and decision-making
-        if (phase === 'NIGHT') return 30000; // 30s (everyone votes to eliminate)
-        if (phase === 'DAY') return 45000; // 45s (quick defense time)
-        return 20000; // 20s voting
+        // Survival Sprint: Fast paced
+        if (phase === 'NIGHT') return 30000; // 30s
+        if (phase === 'DAY') return 45000; // 45s
+        return 20000;
     }
 
     // Classic mode: Standard timers
     if (phase === 'NIGHT') return 30000; // 30s
-    if (phase === 'DAY') return 90000; // 90s discussion
-    return 30000; // 30s voting
+    if (phase === 'DAY') return 90000; // 90s
+    return 30000;
 }
 
 /**

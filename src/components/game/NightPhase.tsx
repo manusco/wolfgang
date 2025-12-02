@@ -42,6 +42,7 @@ export function NightPhase() {
         const showPackInfo = game.mode !== 'SURVIVAL_SPRINT' && otherWolves.length > 0;
         const isSurvivalSprint = game.mode === 'SURVIVAL_SPRINT';
         const isActualWolf = currentPlayer.role === 'WOLF';
+        const isOneShotSeer = game.mode === 'ONE_SHOT_SEER';
 
         return (
             <div className="space-y-6">
@@ -80,50 +81,60 @@ export function NightPhase() {
                         </div>
                     )}
 
+                    {isOneShotSeer && (
+                        <div className="mb-4 p-3 bg-blue-900/20 rounded-lg border border-blue-500/20">
+                            <p className="text-sm text-blue-300">
+                                🔮 In diesem Modus können Werwölfe NICHT töten. Überlebe 3 Tage!
+                            </p>
+                        </div>
+                    )}
+
                     <p className="text-gray-300 mb-4">
                         {hasActed
                             ? (isSurvivalSprint ? 'Verarbeite Stimmen...' : 'Deine Stimme wurde abgegeben.')
-                            : 'Wähle ein Opfer:'}
+                            : (isOneShotSeer ? 'Du kannst niemanden töten.' : 'Wähle ein Opfer:')}
                     </p>
                 </Card>
 
-                <Card>
-                    <div className="grid grid-cols-2 gap-3">
-                        {alivePlayers.map(player => (
-                            <button
-                                key={player.id}
-                                onClick={() => !hasActed && setSelectedTarget(player.id)}
-                                disabled={hasActed}
-                                className={`p-4 rounded-lg border-2 transition-all ${selectedTarget === player.id
-                                    ? (isSurvivalSprint
-                                        ? 'border-teal-500 bg-teal-500/20'
-                                        : 'border-blood-red bg-blood-red/20')
-                                    : 'border-white/10 bg-white/5 hover:bg-white/10'
-                                    } ${hasActed ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            >
-                                <div className="text-3xl mb-2">{player.avatar}</div>
-                                <div className="text-sm font-medium" translate="no">{player.name}</div>
-                                {!isSurvivalSprint && game.nightActions.wolfVotes[player.id] && (
-                                    <div className="text-xs text-blood-red mt-1">
-                                        {Object.values(game.nightActions.wolfVotes).filter(
-                                            id => id === player.id
-                                        ).length} 🐺
-                                    </div>
-                                )}
-                            </button>
-                        ))}
-                    </div>
+                {!isOneShotSeer && (
+                    <Card>
+                        <div className="grid grid-cols-2 gap-3">
+                            {alivePlayers.map(player => (
+                                <button
+                                    key={player.id}
+                                    onClick={() => !hasActed && setSelectedTarget(player.id)}
+                                    disabled={hasActed}
+                                    className={`p-4 rounded-lg border-2 transition-all ${selectedTarget === player.id
+                                        ? (isSurvivalSprint
+                                            ? 'border-teal-500 bg-teal-500/20'
+                                            : 'border-blood-red bg-blood-red/20')
+                                        : 'border-white/10 bg-white/5 hover:bg-white/10'
+                                        } ${hasActed ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    <div className="text-3xl mb-2">{player.avatar}</div>
+                                    <div className="text-sm font-medium" translate="no">{player.name}</div>
+                                    {!isSurvivalSprint && game.nightActions.wolfVotes[player.id] && (
+                                        <div className="text-xs text-blood-red mt-1">
+                                            {Object.values(game.nightActions.wolfVotes).filter(
+                                                id => id === player.id
+                                            ).length} 🐺
+                                        </div>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
 
-                    {selectedTarget && !hasActed && (
-                        <Button
-                            onClick={handleSubmitAction}
-                            className="w-full mt-4"
-                            variant="danger"
-                        >
-                            Bestätigen
-                        </Button>
-                    )}
-                </Card>
+                        {selectedTarget && !hasActed && (
+                            <Button
+                                onClick={handleSubmitAction}
+                                className="w-full mt-4"
+                                variant="danger"
+                            >
+                                Bestätigen
+                            </Button>
+                        )}
+                    </Card>
+                )}
             </div>
         );
     }

@@ -127,6 +127,15 @@ export function Game() {
                         <h2 className="text-3xl font-bold mb-4">
                             {game.winner === 'WEREWOLVES' ? t.game.wolvesWin : t.game.villagersWin}
                         </h2>
+                        <p className="text-lg text-white mb-2 font-medium">
+                            {game.mode === 'ONE_SHOT_SEER' && game.winner === 'WEREWOLVES'
+                                ? "Der Wolf hat 3 Tage überlebt!"
+                                : game.mode === 'SURVIVAL_SPRINT' && game.winner === 'WEREWOLVES'
+                                    ? "Der Wolf hat bis zum Finale überlebt!"
+                                    : game.winner === 'VILLAGERS'
+                                        ? "Das Dorf hat alle Bedrohungen eliminiert!"
+                                        : "Die Wölfe haben die Überhand gewonnen!"}
+                        </p>
                         <p className="text-gray-400 mb-6">{t.game.gameOver}</p>
 
                         <div className="space-y-2">

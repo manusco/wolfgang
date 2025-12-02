@@ -33,4 +33,5 @@ export type GameState = {
   hunterDeath: { hunterId: string; targetId: string | null } | null; // Track hunter death for revenge phase
   winner: 'VILLAGERS' | 'WEREWOLVES' | null;
   accusedPlayerId?: string; // For THE_ACCUSED mode
+  dayCount: number; // Track number of days passed
 };

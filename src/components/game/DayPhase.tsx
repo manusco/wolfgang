@@ -80,6 +80,11 @@ export function DayPhase() {
                         ? 'Deine Stimme wurde abgegeben. Warte auf die anderen Spieler...'
                         : 'Diskutiert und stimmt ab, wen ihr verdächtigt!'}
                 </p>
+                {game.mode === 'BLITZ_WOLF' && timeRemaining < 10 && (
+                    <p className="text-red-500 font-bold animate-pulse mt-2">
+                        ⚡ SCHNELL! Die Zeit läuft ab!
+                    </p>
+                )}
             </Card>
 
             <Card>
@@ -101,6 +106,9 @@ export function DayPhase() {
                         >
                             <div className="text-3xl mb-2">{player.avatar}</div>
                             <div className="text-sm font-medium" translate="no">{player.name}</div>
+                            {game.mode === 'THE_ACCUSED' && game.accusedPlayerId === player.id && (
+                                <div className="text-xs text-red-500 font-bold mt-1">⚖️ ANGEKLAGT</div>
+                            )}
                             {hasVoted && game.dayVotes[playerId] === player.id && (
                                 <div className="text-xs text-yellow-500 mt-1">✓ Gewählt</div>
                             )}
