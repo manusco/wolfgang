@@ -1,4 +1,4 @@
-# Wolfgang - Product Roadmap
+# WolfGang - Product Roadmap
 
 > **Living Document**: This roadmap is regularly updated to reflect current priorities and progress. Last updated: December 1, 2025
 
@@ -16,7 +16,7 @@
 ## Vision & Strategy
 
 ### Product Vision
-**Wolfgang will become the go-to digital werewolf game** that groups choose for gatherings, replacing traditional card-based versions due to superior user experience and innovative mechanics.
+**WolfGang will become the go-to digital werewolf game** that groups choose for gatherings, replacing traditional card-based versions due to superior user experience and innovative mechanics.
 
 ### Success Metrics
 - **Player Engagement**: Average session length > 90 minutes
@@ -388,7 +388,7 @@ Out of scope for foreseeable future
 - **One Night Ultimate Werewolf** (digital): Single round, different format
 - **Town of Salem** (browser): Text-based, no mobile optimization
 
-### Wolfgang's Advantages
+### WolfGang's Advantages
 1. ✅ Simultaneous gameplay (unique)
 2. ✅ Mobile-first design
 3. ✅ No account required

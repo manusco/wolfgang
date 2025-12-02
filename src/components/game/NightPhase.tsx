@@ -3,7 +3,8 @@ import { useGameStore } from '../../store/gameStore';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { submitWolfVote, submitSeerCheck } from '../../lib/gameService';
-import { Moon, Eye, Sparkles } from 'lucide-react';
+import { Moon, Eye } from 'lucide-react';
+import { VillagerMinigame } from './VillagerMinigame';
 
 export function NightPhase() {
     const { game, playerId } = useGameStore();
@@ -156,7 +157,7 @@ export function NightPhase() {
         );
     }
 
-    // Villager / Witch / Hunter view - placebo activity
+    // Villager / Witch / Hunter view - interactive mini-game
     return (
         <div className="space-y-6">
             <Card className="bg-midnight-blue/50">
@@ -170,19 +171,11 @@ export function NightPhase() {
                 <p className="text-gray-300 mb-6">
                     {currentPlayer.role === 'VILLAGER'
                         ? 'Du schläfst friedlich...'
-                        : `Du bist ein ${currentPlayer.role === 'WITCH' ? 'Hexe' : 'Jäger'} und ruhst dich aus...`}
+                        : `Du bist ${currentPlayer.role === 'WITCH' ? 'eine Hexe' : 'ein Jäger'} und ruhst dich aus...`}
                 </p>
 
-                {/* Placebo mini-game */}
-                <div className="text-center py-8">
-                    <div className="relative inline-block">
-                        <Sparkles className="w-16 h-16 text-blue-300 animate-pulse" />
-                        <div className="absolute inset-0 bg-blue-400/20 rounded-full blur-xl animate-pulse" />
-                    </div>
-                    <p className="text-sm text-gray-500 mt-4">
-                        Träume süß, während die Nacht vergeht...
-                    </p>
-                </div>
+                {/* Interactive mini-game */}
+                <VillagerMinigame timeRemaining={timeRemaining} />
             </Card>
         </div>
     );

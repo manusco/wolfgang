@@ -1,4 +1,4 @@
-# Deployment Guide - Wolfgang/Schattenwelt
+# Deployment Guide - WolfGang/Schattenwelt
 
 ## Quick Deploy (Recommended): Vercel + Firebase
 
@@ -137,7 +137,7 @@ Your app is already configured as a PWA (Progressive Web App). Users can:
 
 1. Visit your deployed URL on their phone
 2. Tap "Add to Home Screen" (iOS) or "Install App" (Android)
-3. Play Wolfgang like a native app!
+3. Play WolfGang like a native app!
 
 ---
 

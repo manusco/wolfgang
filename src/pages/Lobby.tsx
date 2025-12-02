@@ -6,6 +6,8 @@ import { Card } from '../components/ui/Card';
 import { ArrowLeft, Copy, User, AlertCircle } from 'lucide-react';
 import { createGame, joinGame, subscribeToGame, startGame } from '../lib/gameService';
 import { useGameStore } from '../store/gameStore';
+import { useLanguageStore } from '../store/languageStore';
+import { translations } from '../i18n/translations';
 import { GameState } from '../types';
 
 interface LobbyProps {
@@ -17,6 +19,8 @@ const AVATARS = ['🐺', '🔮', '🧙‍♀️', '🏹', '👨‍🌾', '🧛�
 export function Lobby({ isHost }: LobbyProps) {
     const navigate = useNavigate();
     const { playerId, setPlayerId, setGame } = useGameStore();
+    const { language } = useLanguageStore();
+    const t = translations[language];
     const [name, setName] = useState('');
     const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0]);
     const [roomCode, setRoomCode] = useState('');
@@ -119,7 +123,7 @@ export function Lobby({ isHost }: LobbyProps) {
                 <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="px-0">
                     <ArrowLeft className="w-5 h-5" />
                 </Button>
-                <h2 className="text-2xl font-bold">{isHost ? 'Spiel erstellen' : 'Spiel beitreten'}</h2>
+                <h2 className="text-2xl font-bold">{isHost ? t.lobby.createGame : t.lobby.joinGame}</h2>
             </div>
 
             {error && (
@@ -148,8 +152,8 @@ export function Lobby({ isHost }: LobbyProps) {
                                 key={avatar}
                                 onClick={() => setSelectedAvatar(avatar)}
                                 className={`p-2 rounded-lg text-xl transition-all ${selectedAvatar === avatar
-                                        ? 'bg-blood-red/20 border border-blood-red'
-                                        : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                                    ? 'bg-blood-red/20 border border-blood-red'
+                                    : 'bg-white/5 hover:bg-white/10 border border-transparent'
                                     }`}
                             >
                                 {avatar}
@@ -158,16 +162,16 @@ export function Lobby({ isHost }: LobbyProps) {
                     </div>
 
                     <Input
-                        label="Dein Name"
-                        placeholder="z.B. Schattenläufer"
+                        label={t.lobby.enterName}
+                        placeholder={t.lobby.namePlaceholder}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                     />
 
                     {!isHost && (
                         <Input
-                            label="Raum Code"
-                            placeholder="z.B. WOLF"
+                            label={t.lobby.roomCode}
+                            placeholder={t.lobby.codePlaceholder}
                             value={roomCode}
                             onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
                             maxLength={4}
@@ -176,12 +180,12 @@ export function Lobby({ isHost }: LobbyProps) {
 
                     {isHost && gameState && (
                         <div className="p-4 bg-black/30 rounded-lg border border-white/5 text-center space-y-2">
-                            <div className="text-sm text-gray-400">Raum Code</div>
+                            <div className="text-sm text-gray-400">{t.lobby.roomCode}</div>
                             <div className="text-3xl font-mono font-bold tracking-widest text-blood-red">
                                 {gameState.id}
                             </div>
                             <Button variant="ghost" size="sm" className="text-xs w-full" onClick={copyRoomCode}>
-                                <Copy className="w-3 h-3 mr-2" /> Code kopieren
+                                <Copy className="w-3 h-3 mr-2" />{t.lobby.copyCode}
                             </Button>
                         </div>
                     )}
@@ -194,7 +198,7 @@ export function Lobby({ isHost }: LobbyProps) {
                         onClick={isHost ? handleCreate : handleJoin}
                         disabled={!name || (!isHost && !roomCode) || isLoading}
                     >
-                        {isLoading ? 'Lädt...' : (isHost ? 'Lobby öffnen' : 'Beitreten')}
+                        {isLoading ? t.lobby.loading : (isHost ? t.lobby.openLobby : t.lobby.join)}
                     </Button>
                 )}
             </Card>
@@ -202,7 +206,7 @@ export function Lobby({ isHost }: LobbyProps) {
             {gameState && isHost && (
                 <Card>
                     <h3 className="text-lg font-bold mb-4 flex items-center justify-between">
-                        <span>Spieler</span>
+                        <span>{t.lobby.players}</span>
                         <span className="text-sm font-normal text-gray-400">{players.length} / 20</span>
                     </h3>
                     <div className="space-y-2">
@@ -225,10 +229,10 @@ export function Lobby({ isHost }: LobbyProps) {
                             disabled={players.length < 4 || isLoading}
                             onClick={handleStart}
                         >
-                            {isLoading ? 'Startet...' : 'Spiel starten'}
+                            {isLoading ? t.lobby.starting : t.lobby.startGame}
                         </Button>
                         <p className="text-center text-xs text-gray-500 mt-2">
-                            Mindestens 4 Spieler benötigt
+                            {t.lobby.minPlayersRequired}
                         </p>
                     </div>
                 </Card>
@@ -237,7 +241,7 @@ export function Lobby({ isHost }: LobbyProps) {
             {gameState && !isHost && (
                 <Card>
                     <h3 className="text-lg font-bold mb-4 flex items-center justify-between">
-                        <span>Spieler</span>
+                        <span>{t.lobby.players}</span>
                         <span className="text-sm font-normal text-gray-400">{players.length} / 20</span>
                     </h3>
                     <div className="space-y-2">
@@ -254,7 +258,7 @@ export function Lobby({ isHost }: LobbyProps) {
                         ))}
                     </div>
                     <p className="text-center text-sm text-gray-400 mt-4">
-                        Warte auf den Host...
+                        {t.lobby.waitingForHost}
                     </p>
                 </Card>
             )}

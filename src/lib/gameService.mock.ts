@@ -26,9 +26,12 @@ export const subscribeToGame = (gameId: string, callback: (game: GameState) => v
             wolfVotes: {},
             witchHealUsed: false,
             witchPoisonUsed: false,
+            witchSaved: false,
+            witchPoisoned: null,
             seerCheck: null
         },
         dayVotes: {},
+        hunterDeath: null,
         winner: null
     };
     callback(mockGame);

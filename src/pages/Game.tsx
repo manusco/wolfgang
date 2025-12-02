@@ -7,11 +7,15 @@ import { NightPhase } from '../components/game/NightPhase';
 import { DayPhase } from '../components/game/DayPhase';
 import { HostControls } from '../components/game/HostControls';
 import { Moon, Sun, Trophy } from 'lucide-react';
+import { useLanguageStore } from '../store/languageStore';
+import { translations } from '../i18n/translations';
 
 export function Game() {
     const { gameId } = useParams();
     const navigate = useNavigate();
     const { game, setGame, playerId } = useGameStore();
+    const { language } = useLanguageStore();
+    const t = translations[language];
 
     // Subscribe to game updates
     useEffect(() => {
@@ -33,7 +37,7 @@ export function Game() {
                 <Card>
                     <div className="text-center py-8">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blood-red mx-auto mb-4" />
-                        <p className="text-gray-400">Lade Spiel...</p>
+                        <p className="text-gray-400">{t.game.loading}</p>
                     </div>
                 </Card>
             </div>
@@ -49,8 +53,8 @@ export function Game() {
                 <Card>
                     <div className="text-center py-8">
                         <Moon className="w-12 h-12 text-blood-red mx-auto mb-4" />
-                        <h2 className="text-2xl font-bold mb-2">Warte auf Spielstart...</h2>
-                        <p className="text-gray-400">Der Host startet das Spiel gleich.</p>
+                        <h2 className="text-2xl font-bold mb-2">{t.game.waitingForGameStart}</h2>
+                        <p className="text-gray-400">{t.game.hostWillStart}</p>
                     </div>
                 </Card>
             </div>
@@ -64,12 +68,12 @@ export function Game() {
                     <div className="text-center py-8">
                         <Trophy className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
                         <h2 className="text-3xl font-bold mb-4">
-                            {game.winner === 'WEREWOLVES' ? '🐺 Werwölfe gewinnen!' : '👥 Dorf gewinnt!'}
+                            {game.winner === 'WEREWOLVES' ? t.game.wolvesWin : t.game.villagersWin}
                         </h2>
-                        <p className="text-gray-400 mb-6">Das Spiel ist vorbei.</p>
+                        <p className="text-gray-400 mb-6">{t.game.gameOver}</p>
 
                         <div className="space-y-2">
-                            <h3 className="text-lg font-bold mb-3">Rollen-Enthüllung:</h3>
+                            <h3 className="text-lg font-bold mb-3">{t.game.rolesReveal}</h3>
                             {Object.values(game.players).map(player => (
                                 <div
                                     key={player.id}
@@ -80,7 +84,7 @@ export function Game() {
                                         <span>{player.name}</span>
                                     </div>
                                     <span className={`text-sm ${player.role === 'WOLF' ? 'text-blood-red' : 'text-blue-400'}`}>
-                                        {player.role}
+                                        {t.roles[player.role as keyof typeof t.roles]}
                                     </span>
                                 </div>
                             ))}
@@ -95,7 +99,7 @@ export function Game() {
         <div className="flex flex-col gap-6 max-w-md mx-auto w-full p-4">
             {/* Header */}
             <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold">Raum: {game.id}</h2>
+                <h2 className="text-xl font-bold">{t.game.room}: {game.id}</h2>
                 <div className="flex items-center gap-2">
                     {game.status === 'NIGHT' ? (
                         <Moon className="w-5 h-5 text-blue-400" />
@@ -103,7 +107,7 @@ export function Game() {
                         <Sun className="w-5 h-5 text-yellow-500" />
                     )}
                     <span className="px-3 py-1 rounded-full bg-white/10 text-sm font-mono">
-                        {game.status}
+                        {t.game[game.status.toLowerCase() as 'night' | 'day'] || game.status}
                     </span>
                 </div>
             </div>
@@ -114,14 +118,14 @@ export function Game() {
                     <div className="flex items-center gap-3">
                         <span className="text-3xl">{currentPlayer.avatar}</span>
                         <div>
-                            <p className="text-sm text-gray-400">Deine Rolle:</p>
-                            <p className="font-bold">{currentPlayer.role}</p>
+                            <p className="text-sm text-gray-400">{t.game.yourRole}</p>
+                            <p className="font-bold">{t.roles[currentPlayer.role as keyof typeof t.roles]}</p>
                         </div>
                         <div className="ml-auto">
                             {currentPlayer.isAlive ? (
-                                <span className="text-xs text-green-400">💚 Lebendig</span>
+                                <span className="text-xs text-green-400">{t.game.aliveStatus}</span>
                             ) : (
-                                <span className="text-xs text-gray-500">👻 Tot</span>
+                                <span className="text-xs text-gray-500">{t.game.deadStatus}</span>
                             )}
                         </div>
                     </div>

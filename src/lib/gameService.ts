@@ -85,9 +85,12 @@ export async function createGame(hostId: string, hostName: string, hostAvatar: s
             wolfVotes: {},
             witchHealUsed: false,
             witchPoisonUsed: false,
+            witchSaved: false,
+            witchPoisoned: null,
             seerCheck: null,
         },
         dayVotes: {},
+        hunterDeath: null,
         winner: null,
     };
 

@@ -1,4 +1,4 @@
-# Firebase Security Rules for Wolfgang/Schattenwelt
+# Firebase Security Rules for WolfGang/Schattenwelt
 
 ## Problem
 Firestore writes are being silently blocked because the database is in production mode with restrictive security rules.

@@ -1,4 +1,4 @@
-# Wolfgang - Technical Specification
+# WolfGang - Technical Specification
 
 > **Living Document**: This specification is regularly updated to reflect the current technical implementation and architecture. Last updated: December 1, 2025
 
@@ -93,7 +93,7 @@ graph TD
 ## Project Structure
 
 ```
-Schattenwelt/ (to be renamed to Wolfgang)
+Schattenwelt/ (to be renamed to WolfGang)
 ├── docs/                       # Timeless documentation
 │   ├── GAME_DESIGN_SPEC.md    # Game design & mechanics
 │   ├── TECHNICAL_SPEC.md      # This file

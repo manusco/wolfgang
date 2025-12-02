@@ -1,6 +1,6 @@
-# Wolfgang - Game Design Specification
+# WolfGang - Game Design Specification
 
-> **Living Document**: This specification is regularly updated to reflect the current state and vision of Wolfgang. Last updated: December 1, 2025
+> **Living Document**: This specification is regularly updated to reflect the current state and vision of WolfGang. Last updated: December 1, 2025
 
 ## Table of Contents
 - [Vision & Goals](#vision--goals)
@@ -15,13 +15,13 @@
 
 ## Vision & Goals
 
-### What is Wolfgang?
-Wolfgang is a **digital werewolf party game** that revolutionizes the classic social deduction game by eliminating common pain points: waiting, downtime, and the possibility of cheating.
+### What is WolfGang?
+WolfGang is a **digital werewolf party game** that revolutionizes the classic social deduction game by eliminating common pain points: waiting, downtime, and the possibility of cheating.
 
 ### Core Goal
 Create the most **engaging, fair, and streamlined werewolf experience** possible by leveraging technology to enable simultaneous gameplay while preserving the social dynamics that make werewolf games compelling.
 
-### What Makes Wolfgang Different?
+### What Makes WolfGang Different?
 1. **No Waiting**: All players act simultaneously during each phase
 2. **No Cheating**: Digital role management prevents peeking and ensures fairness
 3. **No Moderator Needed**: The app handles all game logic and role assignments
@@ -41,7 +41,7 @@ Create the most **engaging, fair, and streamlined werewolf experience** possible
 
 #### The Social Butterfly (Primary)
 - Age: 18-28
-- Context: Uses Wolfgang at parties, game nights, team-building events
+- Context: Uses WolfGang at parties, game nights, team-building events
 - Needs: Quick setup, easy to explain, engaging for everyone
 - Tech Comfort: High (smartphone native)
 
@@ -75,7 +75,7 @@ Create the most **engaging, fair, and streamlined werewolf experience** possible
 - ✅ **Accessible**: Works on any modern smartphone
 
 ### Why Users Will Love It
-Wolfgang solves the fundamental problems of traditional werewolf:
+WolfGang solves the fundamental problems of traditional werewolf:
 1. **Eliminated dead time** where players feel bored
 2. **Prevented cheating** that ruins game integrity
 3. **Removed moderator burden** so everyone can play
@@ -86,7 +86,7 @@ Wolfgang solves the fundamental problems of traditional werewolf:
 ## Core Gameplay
 
 ### Game Overview
-Wolfgang is a social deduction game where **villagers** try to identify and eliminate **werewolves** before the pack kills them all. The game alternates between **Night** and **Day** phases.
+WolfGang is a social deduction game where **villagers** try to identify and eliminate **werewolves** before the pack kills them all. The game alternates between **Night** and **Day** phases.
 
 ### Win Conditions
 - **Villagers Win**: If all werewolves are eliminated
@@ -239,7 +239,7 @@ Intelligent role assignment based on player count:
 ### Design Philosophy
 **Gothic | Atmospheric | Immediately Understandable**
 
-Wolfgang's interface should evoke a mysterious, nocturnal atmosphere while remaining crystal clear and accessible to new players.
+WolfGang's interface should evoke a mysterious, nocturnal atmosphere while remaining crystal clear and accessible to new players.
 
 ### Visual Identity
 
