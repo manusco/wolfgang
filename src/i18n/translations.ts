@@ -60,6 +60,11 @@ export const translations = {
             yourRole: "Deine Rolle:",
             aliveStatus: "💚 Lebendig",
             deadStatus: "👻 Tot",
+            playerKilled: "{{player}} wurde getötet!",
+            playerEliminated: "{{player}} wurde ausgeschlossen!",
+            welcome: "Willkommen, {{name}}!",
+            playerJoined: "{{player}} ist beigetreten",
+            playerLeft: "{{player}} hat das Spiel verlassen",
         },
         roles: {
             WOLF: "Werwolf",
@@ -138,6 +143,11 @@ export const translations = {
             yourRole: "Your Role:",
             aliveStatus: "💚 Alive",
             deadStatus: "👻 Dead",
+            playerKilled: "{{player}} was killed!",
+            playerEliminated: "{{player}} was eliminated!",
+            welcome: "Welcome, {{name}}!",
+            playerJoined: "{{player}} joined",
+            playerLeft: "{{player}} left the game",
         },
         roles: {
             WOLF: "Werewolf",

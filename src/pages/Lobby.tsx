@@ -8,7 +8,9 @@ import { createGame, joinGame, subscribeToGame, startGame } from '../lib/gameSer
 import { useGameStore } from '../store/gameStore';
 import { useLanguageStore } from '../store/languageStore';
 import { translations } from '../i18n/translations';
+import { interpolate } from '../i18n/utils';
 import { GameState } from '../types';
+
 
 interface LobbyProps {
     isHost: boolean;
@@ -207,7 +209,9 @@ export function Lobby({ isHost }: LobbyProps) {
                 <Card>
                     <h3 className="text-lg font-bold mb-4 flex items-center justify-between">
                         <span>{t.lobby.players}</span>
-                        <span className="text-sm font-normal text-gray-400">{players.length} / 20</span>
+                        <span className="text-sm font-normal text-gray-400">
+                            {interpolate(t.lobby.playerCount, { count: players.length })}
+                        </span>
                     </h3>
                     <div className="space-y-2">
                         {players.map((player) => (
@@ -242,7 +246,9 @@ export function Lobby({ isHost }: LobbyProps) {
                 <Card>
                     <h3 className="text-lg font-bold mb-4 flex items-center justify-between">
                         <span>{t.lobby.players}</span>
-                        <span className="text-sm font-normal text-gray-400">{players.length} / 20</span>
+                        <span className="text-sm font-normal text-gray-400">
+                            {interpolate(t.lobby.playerCount, { count: players.length })}
+                        </span>
                     </h3>
                     <div className="space-y-2">
                         {players.map((player) => (
