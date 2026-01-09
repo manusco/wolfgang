@@ -109,7 +109,7 @@ export function Game() {
             <div className="flex items-center justify-center min-h-screen">
                 <Card>
                     <div className="text-center py-8">
-                        <Moon className="w-12 h-12 text-blood-red mx-auto mb-4" />
+                        <img src="/logo.png" alt="WolfGang" className="w-20 h-20 mx-auto mb-4 object-contain" />
                         <h2 className="text-2xl font-bold mb-2">{t.game.waitingForGameStart}</h2>
                         <p className="text-gray-400">{t.game.hostWillStart}</p>
                     </div>

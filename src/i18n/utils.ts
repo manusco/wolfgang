@@ -27,10 +27,15 @@ export function interpolate(
  * Supports dot notation paths like "game.playerKilled"
  */
 export function getTranslation(
-    translations: any,
+    translations: Record<string, unknown>,
     path: string
 ): string | undefined {
-    return path.split('.').reduce((obj, key) => obj?.[key], translations);
+    return path.split('.').reduce((obj: unknown, key) => {
+        if (obj && typeof obj === 'object') {
+            return (obj as Record<string, unknown>)[key];
+        }
+        return undefined;
+    }, translations) as string | undefined;
 }
 
 /**
@@ -41,7 +46,7 @@ export function getTranslation(
  * // Returns: "Alice wurde getötet!"
  */
 export function t(
-    translations: any,
+    translations: Record<string, unknown>,
     path: string,
     variables?: Record<string, string | number>
 ): string {

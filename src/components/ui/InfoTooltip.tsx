@@ -1,8 +1,9 @@
 import { HelpCircle, X } from 'lucide-react';
 import * as Popover from '@radix-ui/react-popover';
+import { ReactNode } from 'react';
 
 interface InfoTooltipProps {
-    content: React.ReactNode;
+    content: ReactNode;
     title?: string;
     size?: 'sm' | 'md';
 }

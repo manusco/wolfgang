@@ -1,0 +1,102 @@
+﻿
+> schattenwelt@0.1.0 lint
+> eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0
+
+
+D:\Dev\WolfGang\archive\old_broken_env\src\components\ConnectionStatus.tsx
+  17:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Dev\WolfGang\archive\old_broken_env\src\components\ui\Button.tsx
+  9:52  error  'HTMLButtonElement' is not defined  no-undef
+
+D:\Dev\WolfGang\archive\old_broken_env\src\components\ui\Card.tsx
+  9:44  error  'HTMLDivElement' is not defined  no-undef
+
+D:\Dev\WolfGang\archive\old_broken_env\src\components\ui\Input.tsx
+  9:50  error  'HTMLInputElement' is not defined  no-undef
+
+D:\Dev\WolfGang\archive\old_broken_env\src\lib\gameService.ts
+    1:10  warning  'collection' is defined but never used    @typescript-eslint/no-unused-vars
+    3:21  warning  'Player' is defined but never used        @typescript-eslint/no-unused-vars
+  154:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Dev\WolfGang\archive\old_broken_env\src\pages\Lobby.tsx
+   50:8   warning  React Hook useEffect has a missing dependency: 'gameState'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   67:23  warning  Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+   88:23  warning  Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+  101:23  warning  Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+
+D:\Dev\WolfGang\archive\old_broken_env\src\store\gameStore.ts
+  2:21  warning  'Player' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Dev\WolfGang\src\App.test.tsx
+  2:18  warning  'screen' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\Dev\WolfGang\src\components\ConnectionStatus.tsx
+  17:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Dev\WolfGang\src\components\game\GameTimer.tsx
+  14:26  error  'setInterval' is not defined    no-undef
+  21:17  error  'clearInterval' is not defined  no-undef
+  28:22  error  'clearInterval' is not defined  no-undef
+
+D:\Dev\WolfGang\src\components\game\HostControls.tsx
+  43:26  error    'setInterval' is not defined                                                                                                                  no-undef
+  44:22  error    'clearInterval' is not defined                                                                                                                no-undef
+  45:8   warning  React Hook useEffect has missing dependencies: 'handleDayToNight' and 'handleNightToDay'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\Dev\WolfGang\src\components\game\VillagerMinigame.tsx
+  27:31  error  'setInterval' is not defined    no-undef
+  40:22  error  'clearInterval' is not defined  no-undef
+  45:32  error  'setInterval' is not defined    no-undef
+  49:22  error  'clearInterval' is not defined  no-undef
+  59:9   error  'setTimeout' is not defined     no-undef
+
+D:\Dev\WolfGang\src\components\ui\Button.tsx
+  9:52  error  'HTMLButtonElement' is not defined  no-undef
+
+D:\Dev\WolfGang\src\components\ui\Card.tsx
+  9:44  error  'HTMLDivElement' is not defined  no-undef
+
+D:\Dev\WolfGang\src\components\ui\ConfirmDialog.tsx
+  27:34  error  'KeyboardEvent' is not defined  no-undef
+
+D:\Dev\WolfGang\src\components\ui\InfoTooltip.tsx
+  5:14  error  'React' is not defined  no-undef
+
+D:\Dev\WolfGang\src\components\ui\Input.tsx
+  9:50  error  'HTMLInputElement' is not defined  no-undef
+
+D:\Dev\WolfGang\src\i18n\utils.ts
+  30:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  44:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Dev\WolfGang\src\lib\gameLogic.ts
+  218:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Dev\WolfGang\src\lib\gameService.mock.ts
+  3:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  4:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Dev\WolfGang\src\lib\gameService.ts
+  189:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Dev\WolfGang\src\pages\Game.tsx
+  72:44  error  'BeforeUnloadEvent' is not defined  no-undef
+
+D:\Dev\WolfGang\src\pages\Lobby.tsx
+   59:8    warning  React Hook useEffect has a missing dependency: 'gameState'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   76:23   warning  Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+   97:23   warning  Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+  110:23   warning  Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+  206:141  warning  Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+  235:145  warning  Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+  264:149  warning  Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+  293:147  warning  Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+  322:155  warning  Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+
+D:\Dev\WolfGang\src\store\gameStore.ts
+  39:9  error  'setTimeout' is not defined  no-undef
+
+Ô£û 47 problems (20 errors, 27 warnings)
+

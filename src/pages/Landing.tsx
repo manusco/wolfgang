@@ -81,8 +81,8 @@ export function Landing() {
             <LanguageToggle />
 
             <div className="text-center space-y-4">
-                <div className="inline-block p-4 rounded-full bg-white/5 mb-4 backdrop-blur-sm border border-white/10">
-                    <Moon className="w-12 h-12 text-blood-red" />
+                <div className="inline-block mb-4">
+                    <img src="/logo.png" alt="WolfGang Logo" className="w-32 h-32 object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300" />
                 </div>
                 <h1 className="text-5xl md:text-7xl font-cinzel font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 drop-shadow-lg">
                     {t.title}

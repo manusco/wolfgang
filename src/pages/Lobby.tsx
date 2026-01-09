@@ -42,9 +42,10 @@ export function Lobby({ isHost }: LobbyProps) {
     }, [playerId, setPlayerId]);
 
     // Subscribe to game updates
+    const gameId = gameState?.id;
     useEffect(() => {
-        if (gameState) {
-            const unsubscribe = subscribeToGame(gameState.id, (updatedGame) => {
+        if (gameId) {
+            const unsubscribe = subscribeToGame(gameId, (updatedGame) => {
                 setGameState(updatedGame);
                 setGame(updatedGame);
 
@@ -56,7 +57,7 @@ export function Lobby({ isHost }: LobbyProps) {
 
             return () => unsubscribe();
         }
-    }, [gameState?.id, setGame, navigate]);
+    }, [gameId, setGame, navigate, setGameState]);
 
     const handleCreate = async () => {
         if (!name || !playerId) return;
@@ -73,8 +74,8 @@ export function Lobby({ isHost }: LobbyProps) {
                 setGameState(game);
                 setGame(game);
             });
-        } catch (err: any) {
-            setError(err.message || 'Failed to create game');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Failed to create game');
         } finally {
             setIsLoading(false);
         }
@@ -94,8 +95,8 @@ export function Lobby({ isHost }: LobbyProps) {
                 setGameState(game);
                 setGame(game);
             });
-        } catch (err: any) {
-            setError(err.message || 'Failed to join game');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Failed to join game');
         } finally {
             setIsLoading(false);
         }
@@ -107,8 +108,8 @@ export function Lobby({ isHost }: LobbyProps) {
         setIsLoading(true);
         try {
             await startGame(gameState.id);
-        } catch (err: any) {
-            setError(err.message || 'Failed to start game');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Failed to start game');
         } finally {
             setIsLoading(false);
         }
@@ -203,7 +204,7 @@ export function Lobby({ isHost }: LobbyProps) {
                                                 <span className={`font-black text-lg tracking-wide ${selectedMode === 'CLASSIC' ? 'text-white' : 'text-gray-300'}`}>
                                                     {t.modes?.classic?.name || 'Classic'}
                                                 </span>
-                                                <InfoTooltip content={`${t.modes?.classic?.fullDescription || ''}\n\n${(t.modes?.classic as any)?.recommendation || ''}`} />
+                                                <InfoTooltip content={`${t.modes?.classic?.fullDescription || ''}\n\n${t.modes?.classic?.recommendation || ''}`} />
                                             </div>
                                             <p className={`text-sm font-medium leading-relaxed ${selectedMode === 'CLASSIC' ? 'text-purple-200' : 'text-gray-500'}`}>
                                                 {t.modes?.classic?.shortDesc}
@@ -232,7 +233,7 @@ export function Lobby({ isHost }: LobbyProps) {
                                                 <span className={`font-black text-lg tracking-wide ${selectedMode === 'BLITZ_WOLF' ? 'text-yellow-400' : 'text-gray-300'}`}>
                                                     {t.modes?.blitzWolf?.name || 'Blitz Wolf'}
                                                 </span>
-                                                <InfoTooltip content={`${t.modes?.blitzWolf?.fullDescription || ''}\n\n${(t.modes?.blitzWolf as any)?.recommendation || ''}`} />
+                                                <InfoTooltip content={`${t.modes?.blitzWolf?.fullDescription || ''}\n\n${t.modes?.blitzWolf?.recommendation || ''}`} />
                                             </div>
                                             <p className={`text-sm font-medium leading-relaxed ${selectedMode === 'BLITZ_WOLF' ? 'text-yellow-200' : 'text-gray-500'}`}>
                                                 {t.modes?.blitzWolf?.shortDesc}
@@ -261,7 +262,7 @@ export function Lobby({ isHost }: LobbyProps) {
                                                 <span className={`font-black text-lg tracking-wide ${selectedMode === 'ONE_SHOT_SEER' ? 'text-blue-400' : 'text-gray-300'}`}>
                                                     {t.modes?.oneShotSeer?.name || 'One Shot Seer'}
                                                 </span>
-                                                <InfoTooltip content={`${t.modes?.oneShotSeer?.fullDescription || ''}\n\n${(t.modes?.oneShotSeer as any)?.recommendation || ''}`} />
+                                                <InfoTooltip content={`${t.modes?.oneShotSeer?.fullDescription || ''}\n\n${t.modes?.oneShotSeer?.recommendation || ''}`} />
                                             </div>
                                             <p className={`text-sm font-medium leading-relaxed ${selectedMode === 'ONE_SHOT_SEER' ? 'text-blue-200' : 'text-gray-500'}`}>
                                                 {t.modes?.oneShotSeer?.shortDesc}
@@ -290,7 +291,7 @@ export function Lobby({ isHost }: LobbyProps) {
                                                 <span className={`font-black text-lg tracking-wide ${selectedMode === 'THE_ACCUSED' ? 'text-orange-400' : 'text-gray-300'}`}>
                                                     {t.modes?.theAccused?.name || 'The Accused'}
                                                 </span>
-                                                <InfoTooltip content={`${t.modes?.theAccused?.fullDescription || ''}\n\n${(t.modes?.theAccused as any)?.recommendation || ''}`} />
+                                                <InfoTooltip content={`${t.modes?.theAccused?.fullDescription || ''}\n\n${t.modes?.theAccused?.recommendation || ''}`} />
                                             </div>
                                             <p className={`text-sm font-medium leading-relaxed ${selectedMode === 'THE_ACCUSED' ? 'text-orange-200' : 'text-gray-500'}`}>
                                                 {t.modes?.theAccused?.shortDesc}
@@ -319,7 +320,7 @@ export function Lobby({ isHost }: LobbyProps) {
                                                 <span className={`font-black text-lg tracking-wide ${selectedMode === 'SURVIVAL_SPRINT' ? 'text-teal-400' : 'text-gray-300'}`}>
                                                     {t.modes?.survivalSprint?.name || 'Survival Sprint'}
                                                 </span>
-                                                <InfoTooltip content={`${t.modes?.survivalSprint?.fullDescription || ''}\n\n${(t.modes?.survivalSprint as any)?.recommendation || ''}`} />
+                                                <InfoTooltip content={`${t.modes?.survivalSprint?.fullDescription || ''}\n\n${t.modes?.survivalSprint?.recommendation || ''}`} />
                                             </div>
                                             <p className={`text-sm font-medium leading-relaxed ${selectedMode === 'SURVIVAL_SPRINT' ? 'text-teal-200' : 'text-gray-500'}`}>
                                                 {t.modes?.survivalSprint?.shortDesc}

@@ -14,10 +14,10 @@ export function ConnectionStatus() {
                 const q = query(collection(db, 'test_connection'), limit(1));
                 await getDocs(q);
                 setStatus('connected');
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error("Firebase connection error:", err);
                 setStatus('error');
-                setErrorMsg(err.message);
+                setErrorMsg(err instanceof Error ? err.message : 'Unknown error');
             }
         }
 

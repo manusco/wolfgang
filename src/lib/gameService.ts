@@ -186,7 +186,7 @@ export async function startGame(roomCode: string): Promise<void> {
     const initialPhase = (game.mode === 'SURVIVAL_SPRINT' || playerIds.length < 4) ? 'DAY' : 'NIGHT';
 
     // Update all players with their roles
-    const updates: any = {
+    const updates: Record<string, unknown> = {
         status: initialPhase,
         phaseEndTime: Date.now() + getPhaseTimer(game.mode, initialPhase),
     };

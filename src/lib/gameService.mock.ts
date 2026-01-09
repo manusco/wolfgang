@@ -1,6 +1,8 @@
 import { GameState } from '../types';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const db = {} as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const analytics = {} as any;
 
 export const createGame = async (): Promise<string> => {
@@ -33,7 +35,8 @@ export const subscribeToGame = (gameId: string, callback: (game: GameState) => v
         },
         dayVotes: {},
         hunterDeath: null,
-        winner: null
+        winner: null,
+        dayCount: 0
     };
     callback(mockGame);
     return () => { };

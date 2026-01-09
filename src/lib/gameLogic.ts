@@ -20,16 +20,14 @@ export function resolveNightActions(game: GameState): { deadPlayerIds: string[];
             victim = villagers[Math.floor(Math.random() * villagers.length)].id;
         }
     } else if (Object.keys(wolfVotes).length > 0) {
-        // In SURVIVAL_SPRINT mode, only count votes from actual wolves
-        let relevantVotes = wolfVotes;
-        if (game.mode === 'SURVIVAL_SPRINT') {
-            relevantVotes = {};
-            Object.entries(wolfVotes).forEach(([voterId, targetId]) => {
-                if (game.players[voterId]?.role === 'WOLF') {
-                    relevantVotes[voterId] = targetId;
-                }
-            });
-        }
+        // Only count votes from ALIVE werewolves
+        const relevantVotes: Record<string, string> = {};
+        Object.entries(wolfVotes).forEach(([voterId, targetId]) => {
+            const voter = game.players[voterId];
+            if (voter && voter.isAlive && voter.role === 'WOLF') {
+                relevantVotes[voterId] = targetId;
+            }
+        });
 
         const voteCounts: Record<string, number> = {};
         Object.values(relevantVotes).forEach(targetId => {
@@ -51,7 +49,11 @@ export function resolveNightActions(game: GameState): { deadPlayerIds: string[];
 
         // Tie-breaking: If there's a tie, NO ONE dies from wolves (Standard)
         if (potentialVictims.length === 1) {
-            victim = potentialVictims[0];
+            const potentialVictimId = potentialVictims[0];
+            // Only allow killing players that actually exist in the game
+            if (game.players[potentialVictimId]) {
+                victim = potentialVictimId;
+            }
         }
     }
 
@@ -68,15 +70,17 @@ export function resolveNightActions(game: GameState): { deadPlayerIds: string[];
 
     // If witch poisoned someone, they die
     if (game.nightActions.witchPoisoned) {
-        // Avoid adding same player twice (rare edge case)
-        if (!deadPlayerIds.includes(game.nightActions.witchPoisoned)) {
-            deadPlayerIds.push(game.nightActions.witchPoisoned);
+        const poisonTargetId = game.nightActions.witchPoisoned;
+        // Verify target exists and is not already dead for another reason
+        if (game.players[poisonTargetId] && !deadPlayerIds.includes(poisonTargetId)) {
+            deadPlayerIds.push(poisonTargetId);
         }
     }
 
     // 3. Check for Hunter Death
     deadPlayerIds.forEach(id => {
-        if (game.players[id].role === 'HUNTER') {
+        const player = game.players[id];
+        if (player && player.role === 'HUNTER') {
             hunterDied = true;
         }
     });
@@ -95,10 +99,14 @@ export function resolveDayVotes(game: GameState): { executedPlayerId: string | n
         return { executedPlayerId: null, hunterDied: false };
     }
 
-    // Count votes
+    // Count votes from ALIVE players
     const voteCounts: Record<string, number> = {};
-    Object.values(dayVotes).forEach(targetId => {
-        voteCounts[targetId] = (voteCounts[targetId] || 0) + 1;
+    Object.entries(dayVotes).forEach(([voterId, targetId]) => {
+        const voter = game.players[voterId];
+        const target = game.players[targetId];
+        if (voter && voter.isAlive && target) {
+            voteCounts[targetId] = (voteCounts[targetId] || 0) + 1;
+        }
     });
 
     // Find player with most votes
@@ -120,7 +128,7 @@ export function resolveDayVotes(game: GameState): { executedPlayerId: string | n
         executed = potentialVictims[0];
     }
 
-    if (executed && game.players[executed].role === 'HUNTER') {
+    if (executed && game.players[executed] && game.players[executed].role === 'HUNTER') {
         hunterDied = true;
     }
 
@@ -215,7 +223,7 @@ export async function killPlayers(
     if (playerIds.length === 0) return;
 
     const gameRef = doc(db, 'games', gameId);
-    const updates: any = {};
+    const updates: Record<string, unknown> = {};
 
     playerIds.forEach(playerId => {
         updates[`players.${playerId}.isAlive`] = false;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
@@ -23,32 +23,7 @@ export function HostControls() {
     const [isProcessing, setIsProcessing] = useState(false);
     const t = translations[language].game;
 
-    // Auto-transition when timer expires
-    useEffect(() => {
-        if (!game || isProcessing) return;
-
-        const checkTimer = () => {
-            const now = Date.now();
-            // Add a small buffer (1s) to ensure we don't trigger too early due to clock skew
-            if (game.phaseEndTime > 0 && now > game.phaseEndTime + 1000) {
-                console.log('Timer expired, auto-transitioning...');
-                if (game.status === 'NIGHT') {
-                    handleNightToDay(true);
-                } else if (game.status === 'DAY') {
-                    handleDayToNight(true);
-                }
-            }
-        };
-
-        const interval = setInterval(checkTimer, 1000);
-        return () => clearInterval(interval);
-    }, [game, isProcessing]);
-
-    if (!game || !playerId || game.hostId !== playerId) {
-        return null; // Only show to host
-    }
-
-    const handleNightToDay = async (auto = false) => {
+    const handleNightToDay = useCallback(async (auto = false) => {
         if (!game) return;
         if (!auto && !window.confirm(t.toDay + '?')) return;
         setIsProcessing(true);
@@ -90,9 +65,9 @@ export function HostControls() {
         } finally {
             setIsProcessing(false);
         }
-    };
+    }, [game, t.toDay]);
 
-    const handleDayToNight = async (auto = false) => {
+    const handleDayToNight = useCallback(async (auto = false) => {
         if (!game) return;
         if (!auto && !window.confirm(t.toNight + '?')) return;
         setIsProcessing(true);
@@ -129,7 +104,32 @@ export function HostControls() {
         } finally {
             setIsProcessing(false);
         }
-    };
+    }, [game, t.toNight]);
+
+    // Auto-transition when timer expires
+    useEffect(() => {
+        if (!game || isProcessing) return;
+
+        const checkTimer = () => {
+            const now = Date.now();
+            // Add a small buffer (1s) to ensure we don't trigger too early due to clock skew
+            if (game.phaseEndTime > 0 && now > game.phaseEndTime + 1000) {
+                console.log('Timer expired, auto-transitioning...');
+                if (game.status === 'NIGHT') {
+                    handleNightToDay(true);
+                } else if (game.status === 'DAY') {
+                    handleDayToNight(true);
+                }
+            }
+        };
+
+        const interval = setInterval(checkTimer, 1000);
+        return () => clearInterval(interval);
+    }, [game, isProcessing, handleNightToDay, handleDayToNight]);
+
+    if (!game || !playerId || game.hostId !== playerId) {
+        return null; // Only show to host
+    }
 
     const handleHunterShot = async (targetId: string) => {
         if (!game || !game.hunterDeath) return;
