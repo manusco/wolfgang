@@ -1,85 +1,9 @@
-#!/bin/bash
-# resonance.sh - The "Wake Up" Call for Antigravity Agents
-
-# Colors for output
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
-
-# Check for update command
-if [ "$1" == "update" ]; then
-    echo -e "${YELLOW}📡 Checking for Resonance updates...${NC}"
-    echo ""
-    
-    # Get local version from AGENTS.md
-    if [ -f "AGENTS.md" ]; then
-        LOCAL_VERSION=$(grep -m 1 "# RESONANCE v" AGENTS.md | sed 's/.*v\([0-9.]*\).*/\1/')
-        echo "   Local version: v$LOCAL_VERSION"
-        
-        # Fetch remote version
-        REMOTE_VERSION=$(curl -s https://raw.githubusercontent.com/manusco/resonance/main/AGENTS.md | grep -m 1 "# RESONANCE v" | sed 's/.*v\([0-9.]*\).*/\1/')
-        
-        if [ -n "$REMOTE_VERSION" ]; then
-            echo "   Latest version: v$REMOTE_VERSION"
-            echo ""
-            
-            if [ "$LOCAL_VERSION" != "$REMOTE_VERSION" ]; then
-                echo -e "${YELLOW}✨ Update available!${NC}"
-                echo ""
-                echo "To update, run:"
-                echo "  curl -o AGENTS.md https://raw.githubusercontent.com/manusco/resonance/main/AGENTS.md"
-                echo ""
-                echo "Note: Your .resonance/ folder will not be affected."
-            else
-                echo -e "${GREEN}✅ You're running the latest version!${NC}"
-            fi
-        else
-            echo -e "${RED}❌ Unable to check for updates (network issue?)${NC}"
-        fi
-    else
-        echo -e "${RED}❌ AGENTS.md not found${NC}"
-    fi
-    
-    exit 0
-fi
-
-echo "🔮 Resonance System Check:"
-echo "================================"
-
-# Check for corrupted state
-if [ ! -f .resonance/01_state.md ]; then
-    echo "⚠️  CRITICAL: Memory corrupted. State file missing."
-    echo "   Run 'Resonance Init' in Antigravity to rebuild."
-    exit 1
-fi
-
-# Check for knowledge directory
-if [ ! -d .resonance/knowledge ]; then
-    echo "   Creating knowledge directory..."
-    mkdir -p .resonance/knowledge
-fi
-
-# Create Documentation Structure (Unified Memory)
-mkdir -p docs/specs
-mkdir -p docs/architecture
-mkdir -p docs/reports
-
-# Load consciousness
-echo ""
-echo "📖 Loading Soul (Vision):"
-cat .resonance/00_soul.md
-echo ""
-echo "================================"
-echo ""
-echo "📊 Loading State (Current Status):"
-cat .resonance/01_state.md
-echo ""
-echo "================================"
-echo ""
-echo "✅ Resonance System Online"
-echo ""
-echo "Available specialist roles:"
-ls -1 .resonance/roles/ 2>/dev/null | sed 's/\.md$//' | sed 's/^/  - /' || echo "  (none found)"
-echo ""
-echo "💡 Tip: Run './resonance.sh update' to check for framework updates"
+#!/usr/bin/env bash
+# Resonance entrypoint (vendored, do not edit by hand). Dispatches to the engine.
+set -euo pipefail
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+engine="$here/.agents/.runtime/resonance_sync.py"
+py="$(command -v python3 || command -v python || command -v py || true)"
+if [ -z "$py" ]; then echo "resonance: python not found" >&2; exit 0; fi
+cmd="${1:-check}"; shift || true
+exec "$py" "$engine" "$cmd" --repo "$here" "$@"
