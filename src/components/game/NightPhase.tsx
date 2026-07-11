@@ -5,9 +5,14 @@ import { Button } from '../ui/Button';
 import { submitWolfVote, submitSeerCheck } from '../../lib/gameService';
 import { Moon, Eye } from 'lucide-react';
 import { VillagerMinigame } from './VillagerMinigame';
+import { useLanguageStore } from '../../store/languageStore';
+import { translations } from '../../i18n/translations';
+import { interpolate } from '../../i18n/utils';
 
 export function NightPhase() {
     const { game, playerId } = useGameStore();
+    const { language } = useLanguageStore();
+    const t = translations[language];
     const [selectedTarget, setSelectedTarget] = useState<string | null>(null);
     const [hasActed, setHasActed] = useState(false);
 
@@ -51,15 +56,15 @@ export function NightPhase() {
                         <Moon className={`w-6 h-6 ${isSurvivalSprint ? 'text-teal-400' : 'text-blood-red'}`} />
                         <div>
                             <h2 className={`text-xl font-bold ${isSurvivalSprint ? 'text-teal-400' : 'text-blood-red'}`}>
-                                {isSurvivalSprint ? '🏃‍♂️ Survival Sprint' : 'Nachtphase'}
+                                {isSurvivalSprint ? `🏃‍♂️ ${t.modes.survivalSprint.name}` : t.night.title}
                             </h2>
-                            <p className="text-sm text-gray-400">Zeit: {timeRemaining}s</p>
+                            <p className="text-sm text-gray-400">{t.night.time}: {timeRemaining}s</p>
                         </div>
                     </div>
 
                     {showPackInfo && (
                         <div className="mb-4 p-3 bg-black/20 rounded-lg">
-                            <p className="text-sm text-gray-400 mb-2">Dein Rudel:</p>
+                            <p className="text-sm text-gray-400 mb-2">{t.night.yourPack}</p>
                             <div className="flex gap-2">
                                 {otherWolves.map(wolf => (
                                     <div key={wolf.id} className="flex items-center gap-1 text-blood-red">
@@ -75,8 +80,8 @@ export function NightPhase() {
                         <div className="mb-4 p-3 bg-teal-900/20 rounded-lg border border-teal-500/20">
                             <p className="text-sm text-teal-300">
                                 {isActualWolf
-                                    ? '🐺 Du bist der Wolf! Deine Stimme ist die EINZIGE die zählt. Überlebe bis Final 2!'
-                                    : '❓ Du KÖNNTEST der Wolf sein... oder auch nicht. Wähle die Person die du am meisten verdächtigst!'}
+                                    ? `🐺 ${t.modeInstructions.survivalSprint.wolfHint}`
+                                    : `❓ ${t.modeInstructions.survivalSprint.villagerHint}`}
                             </p>
                         </div>
                     )}
@@ -84,15 +89,15 @@ export function NightPhase() {
                     {isOneShotSeer && (
                         <div className="mb-4 p-3 bg-blue-900/20 rounded-lg border border-blue-500/20">
                             <p className="text-sm text-blue-300">
-                                🔮 In diesem Modus können Werwölfe NICHT töten. Überlebe 3 Tage!
+                                🔮 {t.night.oneShotSeerInfo}
                             </p>
                         </div>
                     )}
 
                     <p className="text-gray-300 mb-4">
                         {hasActed
-                            ? (isSurvivalSprint ? 'Verarbeite Stimmen...' : 'Deine Stimme wurde abgegeben.')
-                            : (isOneShotSeer ? 'Du kannst niemanden töten.' : 'Wähle ein Opfer:')}
+                            ? (isSurvivalSprint ? t.modeInstructions.survivalSprint.processing : t.night.voteSubmitted)
+                            : (isOneShotSeer ? t.night.cannotKill : t.night.chooseVictim)}
                     </p>
                 </Card>
 
@@ -130,7 +135,7 @@ export function NightPhase() {
                                 className="w-full mt-4"
                                 variant="danger"
                             >
-                                Bestätigen
+                                {t.night.confirm}
                             </Button>
                         )}
                     </Card>
@@ -147,12 +152,12 @@ export function NightPhase() {
                     <div className="flex items-center gap-3 mb-4">
                         <Eye className="w-6 h-6 text-purple-400" />
                         <div>
-                            <h2 className="text-xl font-bold text-purple-400">Seherin</h2>
-                            <p className="text-sm text-gray-400">Zeit: {timeRemaining}s</p>
+                            <h2 className="text-xl font-bold text-purple-400">{t.night.seerTitle}</h2>
+                            <p className="text-sm text-gray-400">{t.night.time}: {timeRemaining}s</p>
                         </div>
                     </div>
                     <p className="text-gray-300">
-                        {hasActed ? 'Du hast nachgesehen.' : 'Wähle einen Spieler zum Untersuchen:'}
+                        {hasActed ? t.night.seerChecked : t.night.chooseToInspect}
                     </p>
                 </Card>
 
@@ -178,7 +183,7 @@ export function NightPhase() {
                                 <div className="text-sm font-medium" translate="no">{player.name}</div>
                                 {hasActed && selectedTarget === player.id && (
                                     <div className="text-xs text-purple-400 mt-2">
-                                        Rolle: {player.role === 'WOLF' ? '🐺 WOLF' : '👤 DORF'}
+                                        {t.night.roleLabel}: {player.role === 'WOLF' ? t.night.roleWolf : t.night.roleVillage}
                                     </div>
                                 )}
                             </button>
@@ -196,14 +201,14 @@ export function NightPhase() {
                 <div className="flex items-center gap-3 mb-4">
                     <Moon className="w-6 h-6 text-blue-400" />
                     <div>
-                        <h2 className="text-xl font-bold">Die Nacht bricht herein...</h2>
-                        <p className="text-sm text-gray-400">Zeit: {timeRemaining}s</p>
+                        <h2 className="text-xl font-bold">{t.night.nightFalls}</h2>
+                        <p className="text-sm text-gray-400">{t.night.time}: {timeRemaining}s</p>
                     </div>
                 </div>
                 <p className="text-gray-300 mb-6">
                     {currentPlayer.role === 'VILLAGER'
-                        ? 'Du schläfst friedlich...'
-                        : `Du bist ${currentPlayer.role === 'WITCH' ? 'eine Hexe' : 'ein Jäger'} und ruhst dich aus...`}
+                        ? t.night.peacefullySleep
+                        : interpolate(t.night.roleResting, { role: currentPlayer.role === 'WITCH' ? t.night.witchResting : t.night.hunterResting })}
                 </p>
 
                 {/* Interactive mini-game */}

@@ -1,7 +1,7 @@
 {
   "name": "schattenwelt",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,6 +11,8 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@fontsource/cinzel": "^5.2.8",
+    "@fontsource/inter": "^5.2.8",
     "@radix-ui/react-popover": "^1.1.15",
     "clsx": "^2.1.1",
     "firebase": "^12.7.0",

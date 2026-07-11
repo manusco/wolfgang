@@ -61,28 +61,23 @@ vercel --prod
 5. Add environment variables in the dashboard (same as above)
 6. Click "Deploy"
 
-### Step 3: Update Firebase Rules (Production)
+### Step 3: Deploy Firebase Rules (Production)
 
-Replace your current Firestore rules with these more secure production rules:
+The Firestore security rules are versioned in the repo root at `firestore.rules`
+(see `FIREBASE_RULES.md` for what they fix). They are NOT auto-deployed by the
+build or by Vercel. Publish them explicitly with the Firebase CLI:
 
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /games/{gameId} {
-      // Anyone can read game state
-      allow read: if true;
-      
-      // Anyone can create a new game
-      allow create: if request.resource.data.status == 'LOBBY';
-      
-      // Only allow updates to game-related fields
-      allow update: if request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly(['players', 'nightActions', 'dayVotes', 'status', 'phaseEndTime', 'winner']);
-    }
-  }
-}
+```bash
+firebase deploy --only firestore:rules
 ```
+
+`firebase.json` already points the CLI at `firestore.rules`. Do not hand-edit the
+rules in the Firebase console. Edit `firestore.rules` in the repo and redeploy.
+
+Do NOT reuse the old inline `hasOnly([...])` rules from earlier docs: they omitted
+`dayCount`, `hunterDeath` and `accusedPlayerId`, which the game writes on every
+phase transition, and so they freeze play. The versioned rules include the full
+field set.
 
 ### Step 4: Test Your Deployment
 

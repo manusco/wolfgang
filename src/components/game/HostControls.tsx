@@ -16,16 +16,18 @@ import {
 import { ChevronRight, Skull, Crosshair } from 'lucide-react';
 import { useLanguageStore } from '../../store/languageStore';
 import { translations } from '../../i18n/translations';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
 
 export function HostControls() {
     const { game, playerId } = useGameStore();
     const { language } = useLanguageStore();
     const [isProcessing, setIsProcessing] = useState(false);
+    const [confirmAction, setConfirmAction] = useState<'day' | 'night' | null>(null);
     const t = translations[language].game;
+    const tLobby = translations[language].lobby;
 
-    const handleNightToDay = useCallback(async (auto = false) => {
+    const handleNightToDay = useCallback(async () => {
         if (!game) return;
-        if (!auto && !window.confirm(t.toDay + '?')) return;
         setIsProcessing(true);
 
         try {
@@ -65,11 +67,10 @@ export function HostControls() {
         } finally {
             setIsProcessing(false);
         }
-    }, [game, t.toDay]);
+    }, [game]);
 
-    const handleDayToNight = useCallback(async (auto = false) => {
+    const handleDayToNight = useCallback(async () => {
         if (!game) return;
-        if (!auto && !window.confirm(t.toNight + '?')) return;
         setIsProcessing(true);
 
         try {
@@ -104,7 +105,7 @@ export function HostControls() {
         } finally {
             setIsProcessing(false);
         }
-    }, [game, t.toNight]);
+    }, [game]);
 
     // Auto-transition when timer expires
     useEffect(() => {
@@ -116,9 +117,9 @@ export function HostControls() {
             if (game.phaseEndTime > 0 && now > game.phaseEndTime + 1000) {
                 console.log('Timer expired, auto-transitioning...');
                 if (game.status === 'NIGHT') {
-                    handleNightToDay(true);
+                    handleNightToDay();
                 } else if (game.status === 'DAY') {
-                    handleDayToNight(true);
+                    handleDayToNight();
                 }
             }
         };
@@ -198,6 +199,7 @@ export function HostControls() {
     }
 
     return (
+        <>
         <Card className="bg-purple-900/20 border-purple-500/30">
             <div className="flex items-center justify-between">
                 <div>
@@ -211,7 +213,7 @@ export function HostControls() {
                 </div>
 
                 <Button
-                    onClick={() => game.status === 'NIGHT' ? handleNightToDay(false) : handleDayToNight(false)}
+                    onClick={() => setConfirmAction(game.status === 'NIGHT' ? 'day' : 'night')}
                     disabled={isProcessing}
                     size="sm"
                     className="flex items-center gap-2"
@@ -245,5 +247,25 @@ export function HostControls() {
                 </div>
             )}
         </Card>
+
+        <ConfirmDialog
+            isOpen={confirmAction !== null}
+            title={confirmAction === 'day' ? t.toDay : t.toNight}
+            message={t.confirmPhaseChange}
+            confirmLabel={confirmAction === 'day' ? t.toDay : t.toNight}
+            cancelLabel={tLobby.back}
+            onConfirm={() => {
+                const action = confirmAction;
+                setConfirmAction(null);
+                if (action === 'day') {
+                    handleNightToDay();
+                } else if (action === 'night') {
+                    handleDayToNight();
+                }
+            }}
+            onCancel={() => setConfirmAction(null)}
+            variant="danger"
+        />
+        </>
     );
 }

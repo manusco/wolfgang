@@ -20,13 +20,18 @@ console.log('[Firebase] Initializing app...', {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
-// Analytics is optional and won't block the app if it fails
+// Analytics is OFF by default for GDPR reasons (no consent gate exists in this
+// party game). Set VITE_ENABLE_ANALYTICS="true" at build time to opt in.
+const analyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true';
 let analyticsInstance: Analytics | null = null;
-try {
-    analyticsInstance = getAnalytics(app);
-    console.log('[Firebase] Analytics initialized successfully');
-} catch (error) {
-    console.warn('[Firebase] Analytics initialization failed (non-critical):', error);
+
+if (analyticsEnabled) {
+    try {
+        analyticsInstance = getAnalytics(app);
+        console.log('[Firebase] Analytics initialized successfully');
+    } catch (error) {
+        console.warn('[Firebase] Analytics initialization failed (non-critical):', error);
+    }
 }
 
 export const analytics = analyticsInstance;

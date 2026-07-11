@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Role } from '../../types';
+import { useLanguageStore } from '../../store/languageStore';
+import { translations } from '../../i18n/translations';
 
 interface RoleRevealProps {
     role: Role;
@@ -11,53 +13,33 @@ interface RoleRevealProps {
     onContinue: () => void;
 }
 
-const ROLE_INFO: Record<Role, {
-    name: string;
-    icon: string;
-    description: string;
-    color: string;
-    team: string;
-}> = {
-    WOLF: {
-        name: 'Werwolf',
-        icon: '🐺',
-        description: 'Du erwachst in der Nacht und wählst mit deinem Rudel ein Opfer. Töte alle Dorfbewohner, um zu gewinnen!',
-        color: 'from-red-900 to-red-700',
-        team: 'WERWÖLFE',
-    },
-    SEER: {
-        name: 'Seherin',
-        icon: '🔮',
-        description: 'Jede Nacht kannst du einen Spieler untersuchen und seine wahre Identität erfahren. Nutze dein Wissen weise!',
-        color: 'from-purple-900 to-purple-700',
-        team: 'DORF',
-    },
-    WITCH: {
-        name: 'Hexe',
-        icon: '🧙‍♀️',
-        description: 'Du besitzt zwei mächtige Tränke: einen zum Heilen und einen zum Vergiften. Jeder kann nur einmal eingesetzt werden.',
-        color: 'from-green-900 to-green-700',
-        team: 'DORF',
-    },
-    HUNTER: {
-        name: 'Jäger',
-        icon: '🏹',
-        description: 'Wenn du stirbst, nimmst du einen Spieler deiner Wahl mit ins Grab. Wähle weise!',
-        color: 'from-amber-900 to-amber-700',
-        team: 'DORF',
-    },
-    VILLAGER: {
-        name: 'Dorfbewohner',
-        icon: '👨‍🌾',
-        description: 'Du hast keine besonderen Fähigkeiten, aber deine Stimme zählt! Finde die Werwölfe durch Logik und Diskussion.',
-        color: 'from-blue-900 to-blue-700',
-        team: 'DORF',
-    },
+// Visual identity per role. Names and descriptions come from i18n, not from here.
+const ROLE_VISUALS: Record<Role, { icon: string; color: string; isWolf: boolean }> = {
+    WOLF: { icon: '🐺', color: 'from-red-900 to-red-700', isWolf: true },
+    SEER: { icon: '🔮', color: 'from-purple-900 to-purple-700', isWolf: false },
+    WITCH: { icon: '🧙‍♀️', color: 'from-green-900 to-green-700', isWolf: false },
+    HUNTER: { icon: '🏹', color: 'from-amber-900 to-amber-700', isWolf: false },
+    VILLAGER: { icon: '👨‍🌾', color: 'from-blue-900 to-blue-700', isWolf: false },
+};
+
+const ROLE_DESCRIPTION_KEY: Record<Role, string> = {
+    WOLF: 'wolfDescription',
+    SEER: 'seerDescription',
+    WITCH: 'witchDescription',
+    HUNTER: 'hunterDescription',
+    VILLAGER: 'villagerDescription',
 };
 
 export function RoleReveal({ role, avatar: _avatar, teammates, onContinue }: RoleRevealProps) {
+    const { language } = useLanguageStore();
+    const t = translations[language];
+    const rr = t.roleReveal as Record<string, string>;
     const [isRevealed, setIsRevealed] = useState(false);
-    const roleInfo = ROLE_INFO[role];
+
+    const visuals = ROLE_VISUALS[role];
+    const roleName = t.roles[role as keyof typeof t.roles];
+    const roleDescription = rr[ROLE_DESCRIPTION_KEY[role]];
+    const teamName = visuals.isWolf ? t.roleReveal.teamWerewolves : t.roleReveal.teamVillage;
 
     return (
         <motion.div
@@ -73,8 +55,8 @@ export function RoleReveal({ role, avatar: _avatar, teammates, onContinue }: Rol
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2 }}
                     >
-                        <h2 className="text-2xl font-bold mb-2">Deine Rolle</h2>
-                        <p className="text-sm text-gray-400">Diese Information ist nur für dich sichtbar</p>
+                        <h2 className="text-2xl font-bold mb-2">{t.roleReveal.yourRole}</h2>
+                        <p className="text-sm text-gray-400">{t.roleReveal.privateInfo}</p>
                     </motion.div>
 
                     {/* Role Card with Flip Animation */}
@@ -87,7 +69,7 @@ export function RoleReveal({ role, avatar: _avatar, teammates, onContinue }: Rol
                         style={{ transformStyle: 'preserve-3d' }}
                     >
                         <div
-                            className={`relative rounded-xl p-8 bg-gradient-to-br ${roleInfo.color} border-2 border-white/20`}
+                            className={`relative rounded-xl p-8 bg-gradient-to-br ${visuals.color} border-2 border-white/20`}
                             style={{ backfaceVisibility: 'hidden' }}
                         >
                             {/* Avatar */}
@@ -97,7 +79,7 @@ export function RoleReveal({ role, avatar: _avatar, teammates, onContinue }: Rol
                                 transition={{ delay: 0.9, type: 'spring', stiffness: 200 }}
                                 className="text-7xl mb-4"
                             >
-                                {roleInfo.icon}
+                                {visuals.icon}
                             </motion.div>
 
                             {/* Role Name */}
@@ -107,7 +89,7 @@ export function RoleReveal({ role, avatar: _avatar, teammates, onContinue }: Rol
                                 transition={{ delay: 1.0 }}
                                 className="text-3xl font-bold mb-2"
                             >
-                                {roleInfo.name}
+                                {roleName}
                             </motion.h3>
 
                             {/* Team Badge */}
@@ -118,7 +100,7 @@ export function RoleReveal({ role, avatar: _avatar, teammates, onContinue }: Rol
                                 className={`inline-block px-4 py-1 rounded-full text-xs font-bold mb-4 ${role === 'WOLF' ? 'bg-blood-red/30 text-blood-red' : 'bg-blue-500/30 text-blue-300'
                                     }`}
                             >
-                                Team: {roleInfo.team}
+                                {t.roleReveal.team}: {teamName}
                             </motion.div>
 
                             {/* Description */}
@@ -128,7 +110,7 @@ export function RoleReveal({ role, avatar: _avatar, teammates, onContinue }: Rol
                                 transition={{ delay: 1.2 }}
                                 className="text-sm text-gray-200 leading-relaxed"
                             >
-                                {roleInfo.description}
+                                {roleDescription}
                             </motion.p>
                         </div>
                     </motion.div>
@@ -141,7 +123,7 @@ export function RoleReveal({ role, avatar: _avatar, teammates, onContinue }: Rol
                             transition={{ delay: 1.3 }}
                             className="p-4 bg-blood-red/10 rounded-lg border border-blood-red/20"
                         >
-                            <p className="text-sm text-gray-400 mb-3">Dein Rudel:</p>
+                            <p className="text-sm text-gray-400 mb-3">{t.roleReveal.yourPack}</p>
                             <div className="flex flex-wrap gap-3 justify-center">
                                 {teammates.map(teammate => (
                                     <div
@@ -149,7 +131,7 @@ export function RoleReveal({ role, avatar: _avatar, teammates, onContinue }: Rol
                                         className="flex items-center gap-2 px-3 py-2 bg-blood-red/20 rounded-lg border border-blood-red/30"
                                     >
                                         <span className="text-2xl">{teammate.avatar}</span>
-                                        <span className="text-sm font-medium text-blood-red">{teammate.name}</span>
+                                        <span className="text-sm font-medium text-blood-red" translate="no">{teammate.name}</span>
                                     </div>
                                 ))}
                             </div>
@@ -167,7 +149,7 @@ export function RoleReveal({ role, avatar: _avatar, teammates, onContinue }: Rol
                             size="lg"
                             className="w-full"
                         >
-                            Verstanden, weiter
+                            {t.roleReveal.understood}
                         </Button>
                     </motion.div>
                 </div>

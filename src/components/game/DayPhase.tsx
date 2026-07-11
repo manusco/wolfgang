@@ -4,9 +4,13 @@ import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { submitDayVote } from '../../lib/gameService';
 import { Sun, Vote } from 'lucide-react';
+import { useLanguageStore } from '../../store/languageStore';
+import { translations } from '../../i18n/translations';
 
 export function DayPhase() {
     const { game, playerId } = useGameStore();
+    const { language } = useLanguageStore();
+    const t = translations[language];
     const [selectedTarget, setSelectedTarget] = useState<string | null>(null);
     const [hasVoted, setHasVoted] = useState(false);
 
@@ -35,17 +39,17 @@ export function DayPhase() {
                     <div className="flex items-center gap-3 mb-4">
                         <span className="text-4xl">👻</span>
                         <div>
-                            <h2 className="text-xl font-bold text-gray-400">Geistermodus</h2>
-                            <p className="text-sm text-gray-500">Du beobachtest das Spiel...</p>
+                            <h2 className="text-xl font-bold text-gray-400">{t.day.ghostMode}</h2>
+                            <p className="text-sm text-gray-500">{t.day.observing}</p>
                         </div>
                     </div>
                     <p className="text-gray-400">
-                        Du kannst das Geschehen verfolgen, aber nicht mehr abstimmen.
+                        {t.day.cannotVote}
                     </p>
                 </Card>
 
                 <Card>
-                    <h3 className="text-lg font-bold mb-4">Lebende Spieler:</h3>
+                    <h3 className="text-lg font-bold mb-4">{t.day.livingPlayers}</h3>
                     <div className="grid grid-cols-2 gap-3">
                         {Object.values(game.players)
                             .filter(p => p.isAlive)
@@ -71,18 +75,18 @@ export function DayPhase() {
                 <div className="flex items-center gap-3 mb-4">
                     <Sun className="w-6 h-6 text-yellow-500" />
                     <div>
-                        <h2 className="text-xl font-bold text-yellow-500">Tagphase</h2>
-                        <p className="text-sm text-gray-400">Diskussionszeit: {timeRemaining}s</p>
+                        <h2 className="text-xl font-bold text-yellow-500">{t.day.title}</h2>
+                        <p className="text-sm text-gray-400">{t.day.discussionTime}: {timeRemaining}s</p>
                     </div>
                 </div>
                 <p className="text-gray-300">
                     {hasVoted
-                        ? 'Deine Stimme wurde abgegeben. Warte auf die anderen Spieler...'
-                        : 'Diskutiert und stimmt ab, wen ihr verdächtigt!'}
+                        ? t.day.voteSubmitted
+                        : t.day.discussAndVote}
                 </p>
                 {game.mode === 'BLITZ_WOLF' && timeRemaining < 10 && (
                     <p className="text-red-500 font-bold animate-pulse mt-2">
-                        ⚡ SCHNELL! Die Zeit läuft ab!
+                        {t.day.blitzHurry}
                     </p>
                 )}
             </Card>
@@ -90,7 +94,7 @@ export function DayPhase() {
             <Card>
                 <div className="flex items-center gap-2 mb-4">
                     <Vote className="w-5 h-5 text-gray-400" />
-                    <h3 className="text-lg font-bold">Wen verdächtigst du?</h3>
+                    <h3 className="text-lg font-bold">{t.day.whoDoYouSuspect}</h3>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -107,10 +111,10 @@ export function DayPhase() {
                             <div className="text-3xl mb-2">{player.avatar}</div>
                             <div className="text-sm font-medium" translate="no">{player.name}</div>
                             {game.mode === 'THE_ACCUSED' && game.accusedPlayerId === player.id && (
-                                <div className="text-xs text-red-500 font-bold mt-1">⚖️ ANGEKLAGT</div>
+                                <div className="text-xs text-red-500 font-bold mt-1">{t.day.accused}</div>
                             )}
                             {hasVoted && game.dayVotes[playerId] === player.id && (
-                                <div className="text-xs text-yellow-500 mt-1">✓ Gewählt</div>
+                                <div className="text-xs text-yellow-500 mt-1">{t.day.selected}</div>
                             )}
                         </button>
                     ))}
@@ -118,14 +122,16 @@ export function DayPhase() {
 
                 {selectedTarget && !hasVoted && (
                     <Button onClick={handleVote} className="w-full mt-4">
-                        Stimme abgeben
+                        {t.day.submitVote}
                     </Button>
                 )}
 
                 {hasVoted && (
                     <div className="mt-4 p-3 bg-green-900/20 border border-green-500/30 rounded-lg text-center">
                         <p className="text-sm text-green-400">
-                            ✓ Du hast für <span translate="no">{game.players[selectedTarget!]?.name}</span> gestimmt
+                            {t.day.votedFor.split('{{player}}')[0]}
+                            <span translate="no">{game.players[selectedTarget!]?.name}</span>
+                            {t.day.votedFor.split('{{player}}')[1]}
                         </p>
                     </div>
                 )}
@@ -135,7 +141,7 @@ export function DayPhase() {
             {Object.keys(game.dayVotes).length > 0 && (
                 <Card>
                     <h3 className="text-sm font-bold text-gray-400 mb-3">
-                        Stimmen abgegeben: {Object.keys(game.dayVotes).length} /{' '}
+                        {t.day.votesSubmitted}: {Object.keys(game.dayVotes).length} /{' '}
                         {Object.values(game.players).filter(p => p.isAlive).length}
                     </h3>
                     <div className="flex gap-2 flex-wrap">

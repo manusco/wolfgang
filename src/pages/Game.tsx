@@ -8,6 +8,7 @@ import { NightPhase } from '../components/game/NightPhase';
 import { DayPhase } from '../components/game/DayPhase';
 import { HostControls } from '../components/game/HostControls';
 import { GameTimer } from '../components/game/GameTimer';
+import { RoleReveal } from '../components/game/RoleReveal';
 import { Moon, Sun, Trophy, LogOut } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useLanguageStore } from '../store/languageStore';
@@ -21,6 +22,25 @@ export function Game() {
     const t = translations[language];
     const [showLeaveDialog, setShowLeaveDialog] = useState(false);
     const [isReconnecting, setIsReconnecting] = useState(false);
+    const [showRoleReveal, setShowRoleReveal] = useState(false);
+
+    // Show the dramatic one-time role reveal when the game first becomes active.
+    // Skipped in Survival Sprint, where roles must stay hidden by design.
+    useEffect(() => {
+        if (!game || !playerId) return;
+        if (!game.players[playerId]) return;
+        if (game.mode === 'SURVIVAL_SPRINT') return;
+        if (game.status !== 'NIGHT' && game.status !== 'DAY') return;
+        if (localStorage.getItem(`wolfgang_role_revealed_${game.id}`)) return;
+        setShowRoleReveal(true);
+    }, [game, playerId]);
+
+    const handleRoleRevealContinue = () => {
+        if (game) {
+            localStorage.setItem(`wolfgang_role_revealed_${game.id}`, '1');
+        }
+        setShowRoleReveal(false);
+    };
 
     // Try to reconnect if there's a stored session but no game loaded
     useEffect(() => {
@@ -129,12 +149,12 @@ export function Game() {
                         </h2>
                         <p className="text-lg text-white mb-2 font-medium">
                             {game.mode === 'ONE_SHOT_SEER' && game.winner === 'WEREWOLVES'
-                                ? "Der Wolf hat 3 Tage überlebt!"
+                                ? t.game.wolfSurvived3Days
                                 : game.mode === 'SURVIVAL_SPRINT' && game.winner === 'WEREWOLVES'
-                                    ? "Der Wolf hat bis zum Finale überlebt!"
+                                    ? t.game.wolfSurvivedFinale
                                     : game.winner === 'VILLAGERS'
-                                        ? "Das Dorf hat alle Bedrohungen eliminiert!"
-                                        : "Die Wölfe haben die Überhand gewonnen!"}
+                                        ? t.game.villageEliminatedThreats
+                                        : t.game.wolvesGainedUpperHand}
                         </p>
                         <p className="text-gray-400 mb-6">{t.game.gameOver}</p>
 
@@ -228,6 +248,21 @@ export function Game() {
                 onCancel={() => setShowLeaveDialog(false)}
                 variant="danger"
             />
+
+            {showRoleReveal && currentPlayer && (
+                <RoleReveal
+                    role={currentPlayer.role}
+                    avatar={currentPlayer.avatar}
+                    teammates={
+                        currentPlayer.role === 'WOLF'
+                            ? Object.values(game.players)
+                                .filter(p => p.role === 'WOLF' && p.id !== playerId)
+                                .map(p => ({ id: p.id, name: p.name, avatar: p.avatar }))
+                            : undefined
+                    }
+                    onContinue={handleRoleRevealContinue}
+                />
+            )}
         </div>
     );
 }

@@ -1,0 +1,100 @@
+rules_version = '2';
+
+// =============================================================================
+// WolfGang / Schattenwelt - Cloud Firestore security rules
+// =============================================================================
+//
+// IMPORTANT: These rules are VERSIONED here but are NOT auto-deployed. They only
+// take effect after an explicit deploy with the Firebase CLI:
+//
+//     firebase deploy --only firestore:rules
+//
+// Neither Vercel nor `npm run build` publishes Firestore rules. Whatever is live
+// in the Firebase console stays live until someone runs the command above.
+//
+// -----------------------------------------------------------------------------
+// What these rules fix
+// -----------------------------------------------------------------------------
+// 1. World-writable exposure: the old dev rules were `allow read, write: if true`
+//    on `/{document=**}`, so anyone could read, overwrite or delete ANY document.
+//    Here every write is scoped to `/games/{code}`, shape-validated and capped,
+//    and every other path is closed.
+//
+// 2. Frozen phase transitions: the old "production" rules allowed updates only to
+//    ['players','nightActions','dayVotes','status','phaseEndTime','winner'] and so
+//    REJECTED the writes to dayCount (every night->day), hunterDeath and
+//    accusedPlayerId, freezing the game. The field allowlist below is derived
+//    from the actual writes in src/lib/gameService.ts and src/lib/gameLogic.ts and
+//    includes every one of those fields.
+//
+// -----------------------------------------------------------------------------
+// Trust model
+// -----------------------------------------------------------------------------
+// The game has no authentication: player ids are random client strings, so we
+// CANNOT gate on `request.auth` (doing so would block every write). These rules
+// therefore harden shape and scope rather than identity. They suit trusted,
+// friends-only rooms. Full anti-cheat / role secrecy needs a server-authoritative
+// backend (Cloud Functions) and is out of scope here.
+// =============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 4-letter room code, uppercase, no I/O (matches generateRoomCode()).
+    function isRoomCode(code) {
+      return code.matches('^[A-HJ-NP-Z]{4}$');
+    }
+
+    // Full set of top-level fields the client ever writes to a game document.
+    // (Firestore diff().affectedKeys() reports top-level field names, so nested
+    // updates such as `players.<id>.role` count as the `players` field.)
+    function allowedFields() {
+      return [
+        'id', 'hostId', 'status', 'mode', 'phaseEndTime',
+        'players', 'nightActions', 'dayVotes', 'hunterDeath',
+        'winner', 'dayCount', 'accusedPlayerId'
+      ];
+    }
+
+    // Base fields every freshly created game document carries (see createGame()).
+    function requiredBaseFields() {
+      return [
+        'id', 'hostId', 'status', 'mode', 'phaseEndTime',
+        'players', 'nightActions', 'dayVotes', 'winner', 'dayCount'
+      ];
+    }
+
+    function validStatus(status) {
+      return status in ['LOBBY', 'NIGHT', 'DAY', 'HUNTER_REVENGE', 'GAMEOVER'];
+    }
+
+    match /games/{code} {
+
+      // Everyone in the room reads the shared game state (required for sync).
+      allow read: if isRoomCode(code);
+
+      // A new game must start in the lobby, carry the full base shape, only use
+      // known fields, and stay within the 20-player cap.
+      allow create: if isRoomCode(code)
+        && request.resource.data.status == 'LOBBY'
+        && request.resource.data.keys().hasOnly(allowedFields())
+        && request.resource.data.keys().hasAll(requiredBaseFields())
+        && request.resource.data.players.size() <= 20;
+
+      // Updates may only touch the known field set, must keep a valid status,
+      // and must not exceed the player cap.
+      allow update: if isRoomCode(code)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedFields())
+        && validStatus(request.resource.data.status)
+        && request.resource.data.players.size() <= 20;
+
+      // Clients never delete games from the app.
+      allow delete: if false;
+    }
+
+    // Everything outside /games is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -3,6 +3,7 @@ import { Layout } from './components/Layout';
 import { Landing } from './pages/Landing';
 import { Lobby } from './pages/Lobby';
 import { Game } from './pages/Game';
+import { Legal } from './pages/Legal';
 
 function App() {
     return (
@@ -13,6 +14,7 @@ function App() {
                     <Route path="/create" element={<Lobby isHost={true} />} />
                     <Route path="/join" element={<Lobby isHost={false} />} />
                     <Route path="/game/:gameId" element={<Game />} />
+                    <Route path="/legal" element={<Legal />} />
                 </Route>
             </Routes>
         </BrowserRouter>

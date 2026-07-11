@@ -1,68 +1,47 @@
 # Firebase Security Rules for WolfGang/Schattenwelt
 
-## Problem
-Firestore writes are being silently blocked because the database is in production mode with restrictive security rules.
+## The rules live in `firestore.rules`
 
-## Solution
-Update Firestore security rules to allow authenticated (or temporarily public) access.
+The security rules are now versioned in the repo root at
+[`firestore.rules`](./firestore.rules). That file is the single source of truth.
+Do not paste ad-hoc rules into the Firebase console; edit `firestore.rules` and
+deploy it.
 
-## Development Rules (Temporary - for testing)
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // WARNING: These rules allow anyone to read/write to your database
-    // Only use these for development/testing!
-    match /{document=**} {
-      allow read, write: if true;
-    }
-  }
-}
-```
+## These rules are NOT auto-deployed
 
-## Production Rules (Recommended)
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Games collection
-    match /games/{gameId} {
-      // Anyone can read game state (needed for spectators)
-      allow read: if true;
-      
-      // Anyone can create a new game
-      allow create: if request.resource.data.status == 'LOBBY';
-      
-      // Only allow updates to specific fields
-      // This prevents malicious writes to game state
-      allow update: if request.auth != null ||
-        request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['players', 'nightActions', 'dayVotes', 'status', 'phaseEndTime', 'winner']);
-    }
-  }
-}
-```
+Neither `npm run build` nor a Vercel deploy publishes Firestore rules. The file
+only takes effect after an explicit deploy with the Firebase CLI:
 
-## How to Update Rules
-
-### Option 1: Firebase Console (Recommended)
-1. Go to https://console.firebase.google.com
-2. Select your project: `wolfgang-67846`
-3. Navigate to **Firestore Database** → **Rules**
-4. Replace the existing rules with the development rules above
-5. Click **Publish**
-
-### Option 2: Firebase CLI
-If you have the Firebase CLI installed:
 ```bash
-# Create firestore.rules file in project root
-# Then deploy
 firebase deploy --only firestore:rules
 ```
 
-## ⚠️ Security Warning
-The development rules (`allow read, write: if true`) make your database completely public. This is fine for testing but **NOT for production**. Once you're ready to deploy, switch to the production rules.
+Until you run that command, whatever is currently live in the Firebase console
+stays live. `firebase.json` already points the CLI at `firestore.rules`.
 
-The production rules require:
-- Anonymous authentication (already supported by the app)
-- Controlled field updates (prevents game state manipulation)
+## What the versioned rules fix
+
+1. **World-writable exposure.** The former dev rules (`allow read, write: if true`
+   on `/{document=**}`) let anyone read, overwrite or delete any document by room
+   code. The new rules scope every write to `/games/{code}`, validate the shape,
+   cap the document at 20 players, and close every other path.
+
+2. **Frozen phase transitions.** The former "production" rules only allowed
+   updates to `['players','nightActions','dayVotes','status','phaseEndTime','winner']`
+   and therefore rejected the writes to `dayCount` (every night to day),
+   `hunterDeath` and `accusedPlayerId`, which froze the game. The new field
+   allowlist is derived from the real writes in `src/lib/gameService.ts` and
+   `src/lib/gameLogic.ts` and includes all of those fields.
+
+## Trust model and limits
+
+The game has no authentication: player ids are random client strings, so the
+rules cannot gate on `request.auth` (that would block every write). The rules
+harden shape and scope, not identity. They are appropriate for trusted,
+friends-only rooms. Full anti-cheat and hidden-role secrecy would require a
+server-authoritative backend (Cloud Functions) and is out of scope.
+
+## The public web API key is fine
+
+`VITE_FIREBASE_API_KEY` in the client is expected and is not a secret. `.env` and
+`.env.local` are gitignored. No real secret ships in source.

@@ -395,7 +395,7 @@ export function Lobby({ isHost }: LobbyProps) {
                         <Button
                             className="w-full"
                             size="lg"
-                            disabled={players.length < 2 || isLoading}
+                            disabled={players.length < 4 || isLoading}
                             onClick={handleStart}
                         >
                             {isLoading ? t.lobby.starting : t.lobby.startGame}

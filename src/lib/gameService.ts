@@ -156,8 +156,10 @@ export async function startGame(roomCode: string): Promise<void> {
     const game = gameSnap.data() as GameState;
     const playerIds = Object.keys(game.players);
 
-    if (playerIds.length < 2) {
-        throw new Error('Not enough players. Need at least 2 players.');
+    // Minimum of 4 players: two- and three-player Werewolf is degenerate
+    // (role config drops a special role and win math collapses to a coin flip).
+    if (playerIds.length < 4) {
+        throw new Error('Not enough players. Need at least 4 players.');
     }
 
     // Default role configuration
