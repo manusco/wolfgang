@@ -5,6 +5,10 @@ What would make this game great next. Not a log of what shipped (see `CHANGELOG.
 ## The one move that matters most
 Make the game survive a host who leaves. Right now the host is a single point of failure: if their phone dies, backgrounds, or drops connection, the whole table is stuck. For a party game passed around a room, that is the most likely real-world failure. Host migration (or letting any client drive the phase transition) turns a fragile session into a robust one. Everything else here is smaller.
 
+## Priority 0: deploy v0.2.0 (it is not auto-deployed)
+
+**Push does not deploy this app.** v0.2.0 is committed, pushed, and tagged, and it passes the build, all 28 tests, and lint locally. But WolfGang deploys manually (Vercel CLI `vercel --prod`, or the Vercel dashboard, per `DEPLOYMENT.md`), not through a git integration or a GitHub Action. The guessed URLs (`wolfgang-xyz.vercel.app`, `wolfgang-67846.web.app`) both return 404, so I could not confirm a live production URL. Deploy it from your machine (`vercel --prod`) or the dashboard, then confirm the live URL. Until then, none of the 0.2.0 fixes (the English in-game text, the connection status, the self-hosted fonts) are live.
+
 ## Priority 0: owner action (blocking security and multiplayer)
 
 **Deploy the Firestore rules.** The repo now has a correct, scoped `firestore.rules`, but rules are not auto-deployed. Until you run `firebase deploy --only firestore:rules`, the live database still uses whatever is in the console today. If that is the documented "dev" rule, any player can read or corrupt any game by its 4-letter code. Deploy the versioned rules.
