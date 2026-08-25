@@ -2,6 +2,40 @@
 name: resonance-engineering-build
 description: The execution orchestrator. Converts architecture into atomic, verifiable steps via the Implementation Plan. Use when an implementation plan is approved and ready to be built. Drives the frontend and backend engineers.
 archetype: orchestration
+owner: engineering.build
+activation: manual
+authority: consequential
+triggers:
+  - approved implementation plan ready to execute
+entrypoints:
+  - /build
+negative_triggers:
+  - ambiguous or unapproved plan
+inputs:
+  - user_request
+  - plan
+  - implementation_plan
+outputs:
+  - user_request
+  - artifact
+  - evidence
+  - backend_scope
+  - frontend_scope
+  - debugger_scope
+  - security_scope
+  - audit_scope
+side_effects:
+  - may_coordinate_work
+  - may_write_files
+write_sets:
+  - project:implementation-artifacts
+failure_policy: stop
+invokes:
+  - resonance-engineering-backend
+  - resonance-engineering-frontend
+  - resonance-engineering-debugger
+  - resonance-ops-security
+  - resonance-ops-audit
 ---
 
 # /resonance-engineering-build: execute with TDD rigor
@@ -31,6 +65,7 @@ Copy this checklist and tick items as you go.
    - **Simplicity Gate**: Before running tests, ask: "Would a senior engineer say this is overcomplicated? Did I add anything not in the spec?" If yes, simplify first.
    - **Verification**: Run the test again. → verify: test passes.
    - **Visual Check**: If UI, open browser and verify.
+   - **Parallel safety**: the loop is serial by default. Run components concurrently only when they are genuinely independent: no shared types, API contracts, migrations, lockfiles, generated files, or config and schema surfaces, and no contended runtime singleton (one dev server or port, one database, one browser session, a package install, a rate limit). File overlap is necessary but not sufficient. Cap the batch at three to five, decline on uncertainty, and re-inspect the real tree afterward, because a clean merge is not proof of semantic compatibility.
 3. **The Quality Gate**: Run `npm run lint` and `tsc`.
 4. **Security Check**: Delegate to `resonance-ops-security` for a quick Sharp Edges check.
 5. **Completion**: Run `/audit` to verify the finished work before marking DONE.
@@ -61,6 +96,6 @@ Engineers love to over-engineer. Before committing, run the Simplicity Gate: is 
 
 ## Operating Standard
 
-Apply the Resonance operating standard from AGENTS.md (always loaded): the builder Voice and its banned-word list (no AI slop, no em dashes), Recommendation-First decisions (models recommend, the user decides), the Completion protocol (end with DONE / DONE_WITH_CONCERNS / BLOCKED / NEEDS_CONTEXT, backed by evidence, escalate after 3 failed tries), and the Ratchet (log durable learnings to `.resonance/learnings.jsonl`).
+Apply the Resonance operating standard from AGENTS.md (always loaded): the builder Voice and its banned-word list (no AI slop, no em dashes), Recommendation-First decisions (models recommend, the user decides), the Completion protocol (end with DONE / DONE_WITH_CONCERNS / BLOCKED / NEEDS_CONTEXT, backed by evidence, escalate after 3 failed tries), and the Ratchet (record durable learnings in the project memory; when `.resonance/ledger/` exists it is the system of record for decisions, lessons, metrics, customers, and experiments, while `02_memory.md` keeps `[lib]` notes and pointers).
 
-> **Model note (Claude):** Strong native reasoning. Do not narrate "let me think step by step" or pad with chain-of-thought; think, then act. Prefer the dedicated file and search tools over shell. State assumptions briefly, then proceed.
+> **Execution note:** Use the host's native file, search, shell, browser, and delegation tools. Follow the procedure and verify material claims with evidence. Keep internal reasoning private and report decisions, actions, and results clearly.
