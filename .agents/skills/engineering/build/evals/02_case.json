@@ -8,5 +8,11 @@
     "Verifies the tests still pass after simplifying",
     "States the simplicity reasoning briefly rather than silently following the plan",
     "Does not add the abstract class just because the plan specified it"
+  ],
+  "checks": [
+    {
+      "kind": "regex_absent",
+      "value": "[\u2014\u2013]"
+    }
   ]
 }

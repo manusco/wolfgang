@@ -9,5 +9,11 @@
     "Does not write code beyond what the current test requires (no speculative abstraction)",
     "Routes to /debug after 2 consecutive failures on the same component instead of thrashing",
     "Stops and reports when every component in the plan is implemented and its tests pass"
+  ],
+  "checks": [
+    {
+      "kind": "regex_absent",
+      "value": "[\u2014\u2013]"
+    }
   ]
 }
